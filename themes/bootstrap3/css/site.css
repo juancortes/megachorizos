@@ -1,0 +1,16 @@
+body{
+	padding-top: 50px;
+}
+
+.r-xlsx-wrapper{
+	padding-bottom: 20px;
+}
+
+.gen-views-wrapper{
+	width: 670px;
+	margin-bottom: 30px;
+}
+
+.breadcrumb.sql-vistas{
+	margin-top: 10px;
+}

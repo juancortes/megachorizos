@@ -1,0 +1,116 @@
+body {
+ /* background: #123;
+ color: #333;*/
+ font-size: 11px;
+ height: auto;
+ padding-bottom: 20px;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-family: Georgia, serif;
+  font-weight: normal;
+  padding-top: 20px;
+  text-align: center;
+}
+
+h2 {
+  padding-top: 20px;
+  text-align: center;
+}
+.logoCNC{
+  width: 50%; 
+  padding-bottom: 10px; 
+  padding-top: 5px;
+}
+
+.head{
+  text-align: center;
+}
+
+.correocnc{
+  color:#0085c6;
+}
+.foto{
+  border: solid 1px #000000;
+}
+.par{
+  background-color: #E0E0E0;
+}
+.tipoPersona{
+  /*background-color: #00B050;*//*VERDE*/
+  /*background-color: #FF0000; */ /*ROJO*/
+  /*background-color: #4F81BD; */ /*AZUL*/
+  /*background-color: #FF6600; */ /*NARANJA*/
+  text-align: center;
+  font-weight: bold;
+  color:white;
+  text-transform: uppercase;
+  font-size: 14;
+}
+.datos{
+  width: 100%;
+  font-size: 12;
+}
+.unidadCarnet{
+  border: dashed 1px black;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-bottom: 2px;
+  height: 230px;
+  /*background-image: url('http://localhost/carnetscnc/static/images/logo_cnc_wattermark.png');*/
+}
+#watermark { position: fixed; bottom: 0px; right: 0px; width: 320px; height: auto; opacity: .1; }
+.watermark { 
+  /*background:url('../../images/Comfandi_logo.png') no-repeat; */
+  background-repeat: no-repeat;
+  background-position: center;
+  /*background-size:360px auto;*/
+  /*position: fixed; bottom: 0px; right: 0px; width: 360px; height: auto; opacity: .1; */
+  /*
+  width: 360px;
+  height: 100px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background:url(../../images/logo_cnc_wattermark.png) no-repeat; 
+  */
+}
+.respaldo{
+/* width: 360px;
+ height: 100px;
+ position: relative;
+ top: 0;
+ left: 0;*/
+}
+
+.carnetBody{
+  position:absolute;
+}
+.container_12,
+.container_16,
+.container_24 {
+  background-color: #fff;
+  background-repeat: repeat-y;
+  margin-bottom: 20px;
+}
+
+/*.container_12 {
+  background-image: url(../img/12_col.gif);
+}
+
+.container_16 {
+  background-image: url(../img/16_col.gif);
+}
+
+.container_24 {
+  background-image: url(../img/24_col.gif);
+}*/
