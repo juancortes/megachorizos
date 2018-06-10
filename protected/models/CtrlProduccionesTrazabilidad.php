@@ -135,7 +135,7 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 			'producto'         => 'PRODUCTO',
 			'producto1'        => 'PRODUCTO',
 			'responsable'      => 'RESPONSABLE',
-			'cant_produccion'  => 'Tandas',
+			'cant_produccion'  => 'NÚMERO PRODUCIDAS',
 			'peso'             => 'Peso',
 			'estado'           => 'Estado',
 			'observaciones'    => 'Observaciones',

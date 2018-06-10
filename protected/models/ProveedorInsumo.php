@@ -8,6 +8,7 @@
  * @property string $insumo_id
  * @property string $proveedor_id
  * @property string $cantidad
+ * @property string $fecha_ingreso
  *
  * The followings are the available model relations:
  * @property Proveedor $proveedor
@@ -15,6 +16,10 @@
  */
 class ProveedorInsumo extends CActiveRecord
 {
+
+	protected function beforeSave() { 
+		$this->fecha_ingreso = date('Y-m-d H:i:s');
+	}
 	public $nom_proveedor;
 	/**
 	 * @return string the associated database table name
@@ -35,6 +40,7 @@ class ProveedorInsumo extends CActiveRecord
 			array('insumo_id, proveedor_id', 'required'),
 			array('insumo_id, proveedor_id', 'length', 'max'=>11),
 			array('cantidad', 'length', 'max'=>10),
+			array('fecha_ingreso', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, insumo_id, proveedor_id, cantidad', 'safe', 'on'=>'search'),
@@ -64,6 +70,7 @@ class ProveedorInsumo extends CActiveRecord
 			'insumo_id' => 'INSUMO',
 			'proveedor_id' => 'PROVEEDOR',
 			'cantidad' => 'CANTIDAD',
+			'fecha_ingreso' => 'Fecha Ingreso',
 		);
 	}
 

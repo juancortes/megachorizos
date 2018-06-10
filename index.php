@@ -10,6 +10,10 @@ defined('YII_DEBUG') or define('YII_DEBUG',true);
 // specify how many levels of call stack should be shown in each log message
 defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL',3);
 
+if (strpos($_SERVER['REQUEST_URI'], '/gii/model/diff/id/') !== false) {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
 require_once($yii);
 // do not run app before register YiiExcel autoload
 // Yii::createWebApplication($config)->run();
