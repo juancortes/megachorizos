@@ -33,7 +33,10 @@ echo BsHtml::pageHeader('Administrar','Formula Estimados') ?>
 			'value' => '$data->producto->nombre'
 		),
 		'peso',
-		'longitud',
+		array(
+			'name'  => 'longitud',
+			'value' => 'round($data->longitud,2)'
+		),
 		'insumo_id',
 				array(
 					'class'=>'bootstrap.widgets.BsButtonColumn',

@@ -176,7 +176,7 @@
                     <table class="table table-bordered" id ="solicitud">
                     <thead>
                         <tr bgcolor="#A03233">
-                            <td></td>
+                            <td></td> 
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cliente</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Insumo</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
@@ -186,11 +186,11 @@
                     <tbody>
                         <tr ng-repeat="solicitud in solicitudes">
                             <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>
-                            <td>
-                                <div align="center">
-                                    <input type="text" name="Traslados[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.cliente ng-change="setCliente()">
-                                </div>
-                            </td>
+                            <td><div align="center">
+                                    <select name="Traslados[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select" fila={{solicitud.fila}}  ng-model=solicitud.cliente>
+                                    <option value="88">Carvajal</option>
+                                </select>
+                                </div></td>
                             <td>
                                 <div align="center">
                                     <input type="text" name="Traslados[detalle][{{solicitud.fila}}][insumo]" class="insumo form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.insumo ng-change="setInsumo()">
