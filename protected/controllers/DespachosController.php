@@ -1,5 +1,10 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(-1);
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods:GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Headers:Content-type, X-Requested-With");
 class DespachosController extends Controller
 {
 	/**
@@ -28,7 +33,7 @@ class DespachosController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'create', 'index', 'view', 'delete', 'update','getCliente','getDestino'),
+                'actions' => array('getCantidad','admin', 'create', 'index', 'view', 'delete', 'update','getCliente','getDestino'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1")',
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -80,7 +85,6 @@ class DespachosController extends Controller
 					$det->producto 		= $value['producto'];
 					$det->lote 			= $value['lote'];
 					$det->cantidad 		= $value['cantidad'];
-					$det->destino 		= $value['destino'];
 					$det->observaciones = $value['observaciones'];
 					$det->id_despacho 	= $model->id;
 					$det->save();
@@ -252,5 +256,23 @@ class DespachosController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+	}
+
+	public function actionGetCantidad()
+	{
+		$postdata   = file_get_contents("php://input");
+		$request    = json_decode($postdata);
+		$ordenProduccion = $request->orden;
+		$producto_id = $request->producto_id;
+		$ordenProduccion = explode('-', $ordenProduccion);
+		$sql = "SELECT ep.valor_real 
+				FROM  proceso_embutido pe
+				INNER JOIN embutido_productos ep ON ep.proceso_embutido_id = pe.id
+				WHERE tanda = $ordenProduccion[0]
+					AND  ep.producto_id = $producto_id";
+		$results = Yii::app()->db->createCommand($sql)->queryRow();
+		$envio = ['cantidad'=>$results['valor_real']];
+		echo json_encode($envio);
+		exit;
 	}
 }

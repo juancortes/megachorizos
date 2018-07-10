@@ -10,15 +10,12 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-    array('icon' => 'glyphicon glyphicon-list','label'=>'List ProcesoEmbutido', 'url'=>array('index')),
-	array('icon' => 'glyphicon glyphicon-plus-sign','label'=>'Create ProcesoEmbutido', 'url'=>array('create')),
-	array('icon' => 'glyphicon glyphicon-edit','label'=>'Update ProcesoEmbutido', 'url'=>array('update', 'id'=>$model->id)),
-	array('icon' => 'glyphicon glyphicon-minus-sign','label'=>'Delete ProcesoEmbutido', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-    array('icon' => 'glyphicon glyphicon-tasks','label'=>'Manage ProcesoEmbutido', 'url'=>array('admin')),
+	array('icon' => 'glyphicon glyphicon-plus-sign','label'=>'Crear Proceso Embutido', 'url'=>array('create')),
+    array('icon' => 'glyphicon glyphicon-tasks','label'=>'Administrar Proceso Embutido', 'url'=>array('admin')),
 );
 ?>
 
-<?php echo BsHtml::pageHeader('View','ProcesoEmbutido '.$model->id) ?>
+<?php echo BsHtml::pageHeader('Vista Proceso Embutido ') ?>
 
 <?php $this->widget('zii.widgets.CDetailView',array(
 	'htmlOptions' => array(

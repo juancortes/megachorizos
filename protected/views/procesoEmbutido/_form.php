@@ -25,6 +25,95 @@
     }
 </style>
 
+<script type="text/javascript">
+    function eliminar(id)
+    {
+        alertify.confirm('¿Estas seguro que quiere eliminar este producto?', function(e){ 
+            if(e)
+            {
+                $.post('../eliminarDetalle',
+                {
+                    id: id
+
+                },function(res)
+                {
+                    if($("#cantidad_entrante").val() != $("#peso").val())
+                        $("#btn_enviar").hide('slow');
+                    $("#tabla").html(res);
+
+                });
+            }
+            else
+            {
+                alertify.error('Ha cancelado')
+            }
+        });
+        
+    }
+
+    function validarCantidad(key1)
+    {
+        cant = 0;
+        $('.datos[data-valores]').each(function(k,v){ 
+            cant = cant+ parseFloat(v.value);
+            
+        });
+        if($("#peso").val() != cant)
+            $("#btn_enviar").hide('slow');
+        else
+            $("#btn_enviar").show('slow');
+        console.log('k='+key1);
+        estimado(key1);
+    }
+
+    function adicionar()
+    {
+        var $tabla = $("#tbl_productos");
+        var totalCasillas = $tabla.find("tr").length;
+        var tipo = 9;
+        var $tr = $("<tr></tr>");
+        for(var i = 0;i < tipo;i++)
+        {
+            // creamos la columna o td
+            var $td = $("<td>prueba texto</td>")
+            // le asignamos su id
+            .attr("id", "Casilla-"+totalCasillas+"-"+(i+1));
+            $tr.append($td);
+        }
+        $tabla.append($tr);
+    }
+
+    function estimado(key)
+    {
+
+        $.post('../Estimado',
+        {
+            producto : $("#producto_"+key).val(),
+            cantidad : $("#cantidad_"+key).val(),   
+            tipo     : $("#tipo_"+key).val()
+
+        },function(res)
+        {
+            if(res != "")
+            {
+                obj = JSON.parse(res);
+                $("#peso_"+key).val(0);
+                $("#longitud_"+key).val(0);
+                $("#estimado_"+key).val(0);
+
+                $("#peso_"+key).val(obj.peso);
+                $("#longitud_"+key).val(obj.longitud);
+                $("#estimado_"+key).val(obj.estimado);
+            }
+            else
+            {
+                $("#peso_"+key).val(0);
+                $("#longitud_"+key).val(0);
+                $("#estimado_"+key).val(0);
+            }
+        });
+    }
+</script>
 
 <?php $form=$this->beginWidget('bootstrap.widgets.BsActiveForm', array(
     'id'=>'proceso-embutido-form',
@@ -39,9 +128,34 @@
 
     <?php echo $form->errorSummary($model); ?>
 
-    <?php echo $form->textFieldControlGroup($model,'fecha',array('id'=>'fecha')); ?>
-    <?php echo $form->dropDownListControlGroup($model, 'tanda', CtrlProduccionesTrazabilidad::model()->getTanda(), array('id' => 'tanda', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
-    <?php echo $form->textFieldControlGroup($model,'cantidad_entrante',array('id'=>'cantidad_entrante')); ?>
+    <?php 
+        if($model->isNewRecord)
+            echo $form->textFieldControlGroup($model,'fecha',array('id'=>'fecha','class'=>"form-control input-lg")); 
+        else
+            echo $form->textFieldControlGroup($model,'fecha',array('readonly'=>true,'class'=>"form-control input-lg")); 
+        if($model->isNewRecord)
+        {
+    ?>
+    <div id="tandaDiv">
+        <select name="ProcesoEmbutido[tanda]" id="tanda" class="form-control input-lg">
+            <option value="">Seleccione una tanda</option>
+        </select>
+    </div>
+    <?php 
+        }
+        else
+        {
+            $tanda = CtrlProduccionesTrazabilidad::model()->findByPk($model->tanda);
+            $producto = $tanda->producto0->nombre;
+            echo "<input type='text' value='$producto' readonly='readonly' class ='form-control input-lg'>";
+            echo $form->hiddenField($model,'tanda',array('readonly'=>true,'class'=>"form-control input-lg")); 
+
+        }
+    echo $form->textFieldControlGroup($model,'cantidad_entrante',array('id'=>'cantidad_entrante','readonly'=>true,'class'=>"form-control input-lg")); ?>
+    <?php
+        if($model->isNewRecord)
+        {
+    ?>
     <div id="productos" ng-app='appProductos' ng-controller="ProductosController">
         <div class="form" >
             <table class="table table-bordered">
@@ -60,10 +174,13 @@
                             <tr bgcolor="#A03233">
                                 <td></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>cantidad (Kg)</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Unidades Salientes</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Kg)</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tipo</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Peso</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Longitud</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Estimado</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Real</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Diferencia</strong></FONT></td>
                             </tr>   
                         </thead>
                         <tbody>
@@ -71,18 +188,22 @@
                                 <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
                                 <td>
                                     <div align="center">
-                                        <input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto >
+                                        <input type="text" id="producto_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto >
                                     </div>
                                 </td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
-                                <td>
-                                    <div align="center">
-                                        <div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}}   ng-model=solicitud.lote ng-change="setLote()"></div>
+                                <td><div align="center"><input type="text" id="cantidad_{{solicitud.fila}}" ng-keyup = "sumarCantidadEntrante(solicitud.fila)" name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad]" class="cantidad" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
+                                <td><div align="center">
+                                        <select id="tipo_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][tipo]" class="tipo form-control select2-select" style="width:90%" fila={{solicitud.fila}}  ng-model=solicitud.tipo ng-change="setTipo(solicitud.fila)">
+                                            <option value="267">Colageno</option>
+                                            <option value="270">Tripa</option>
+                                        </select>
                                     </div>
                                 </td>
-                                
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][unidades_salientes]" class="unidades_salientes" fila={{solicitud.fila}}   ng-model=solicitud.unidades_salientes></div></td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][estimado]" class="estimado" readonly="true" fila={{solicitud.fila}}   ng-model=solicitud.estimado></div></td>
+                                <td><div align="center"><div align="center"><input type="text" id="peso_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][peso]" class="peso" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.peso ></div></div></td>
+                                <td><div align="center"><input type="text" id="longitud_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][longitud]"   class="longitud"  style="width:90%"    fila={{solicitud.fila}}   ng-model=solicitud.longitud ></div></td>
+                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][estimado]"   class="estimado"    style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.estimado id="estimado_{{solicitud.fila}}"></div></td>
+                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][real]"       class="real"        style="width:90%"         id="peso_real_{{solicitud.fila}}" fila={{solicitud.fila}}   ng-model=solicitud.real></div></td>
+                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][diferencia]" class="diferencia"  style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.diferencia></div></td>
                             </tr>   
                         </tbody>
                         </table>
@@ -92,40 +213,67 @@
             </table> 
         </div>
     </div>
-     <button class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#myModalEncuestador">
-      Ingresar INSUMO(S)
-    </button>
-    <!-- Modal -->
-    <div class="modal fade" id="myModalEncuestador" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
-            <h4 class="modal-title" id="myModalLabel"><center>INGRESO INSUMOS</center></h4>
-          </div>
-            <div class="modal-body">
-                    <?php echo $form->textFieldControlGroup($model,'producto1',array('id'=>'producto','class'=>'typeahead')); ?>
-                    <?php echo $form->dropDownListControlGroup($model,'insumo',array('267'=>'Colageno','270'=>'Tripa'),  
-                        array('id'=>'insumo',                         
-                            'prompt' => 'Seleccione un insumo...',
-                            'class'=>'insumoSelect2' )); ?>
-                    <?php echo $form->textFieldControlGroup($model,'cantidad',array('id'=>'cantidad')); ?>
-                    <?php echo $form->textFieldControlGroup($model,'porcion',array('id'=>'porcion')); ?>
-                    <?php echo $form->textFieldControlGroup($model,'estimado',array('id'=>'estimado', 'readonly'=>true)); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="boton_subir" data-dismiss="modal">Cerrar</button> <br>
-                <button type="button" class="btn btn-primary" id="agregar" onclick="ingresarInsumo();">Ingresar</button>
-                
-            </div>
-        </div>
-      </div>
-    </div>  
+
+    <?php
+        }
+        else
+        {
+            $embutidoProductos = EmbutidoProductos::model()->findAllByAttributes(array('proceso_embutido_id'=>$model->id));
+            if(isset($embutidoProductos) && !Yii::app()->user->checkAccess("Admin1"))
+            {
+            ?>
+                <table border="1" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad (Kg)</th>
+                            <th>Tipo</th>
+                            <th>Peso</th>
+                            <th>Longitud</th>
+                            <th>Estimado</th>
+                            <th>Real</th>
+                            <th>Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                        foreach ($embutidoProductos as $key => $value) {
+                            echo "<tr>";
+                            echo "  <td>".$value->producto->nombre."<input type='hidden'  name='ProcesoEmbutido[producto_id][$key]' value='$value->producto_id'></td>";
+                            echo "  <td>".$value->cantidad."</td>";
+                            if($value->tipo == 270)
+                                $tipo = 'Tripa';
+                            else
+                                $tipo = 'Colageno';
+                            echo "  <td>$tipo</td>";
+                            echo "  <td>".$value->peso."</td>";
+                            echo "  <td>".$value->longitud."</td>";
+                            echo "  <td>".$value->estimado."</td>";
+
+                            echo "  <td><input type='text' id='valor_real_$key' value='$value->valor_real' name='ProcesoEmbutido[valor_real][$key]' onkeyup='calcularDiferencia($key,$value->estimado)'></td>";
+                            echo "  <td><input type='text' id='diferencia_$key' value='$value->diferencia' readonly name='ProcesoEmbutido[diferencia][$key]'></td>";
+                            echo "</tr>";
+                        }
+                    ?>
+                    </tbody>
+                </table>
+            <?php
+            }
+            else
+            {
+                ?>
+                <div id="tabla">
+                     <?php include ('tabla.php'); ?>
+                </div>
+                <?php
+            }
+        }
+    ?>
     <div id='fcarnico'></div>
     <?php echo $form->textFieldControlGroup($model,'averias_totales',array('id'=>'averias_totales')); ?>
     <?php echo $form->textFieldControlGroup($model,'observaciones',array('maxlength'=>200)); ?>
 
-    <?php echo BsHtml::submitButton('Enviar', array('color' => BsHtml::BUTTON_COLOR_PRIMARY)); ?>
+    <?php echo BsHtml::submitButton('Enviar', array('id'=>'btn_enviar','color' => BsHtml::BUTTON_COLOR_PRIMARY)); ?>
 
 <?php $this->endWidget(); ?>
 <script type="text/javascript">
@@ -138,6 +286,37 @@
 
         $("#insumo").change(function() {
             calcularEstimadoInsumos();
+        });
+
+        $('#fecha').change(function() {
+            $.post('<?php echo Yii::app()->getBaseUrl(true) ?>/procesoEmbutido/GetTanda',
+            {
+                fecha:$("#fecha").val(),
+            },function(res)
+            {
+                response = JSON.parse(res);
+                //vaciar cantidad entrante
+                $("#cantidad_entrante").val("");
+                
+                //limpiar los options
+                $('option', '#tanda').remove();
+                $('#tanda').append('<option value="">Seleccione una tanda</option>');
+                // Add options
+                $.each(response,function(index,data){
+                    $('#tanda').append('<option value="'+data['id']+'">'+data['datos']+'</option>');
+                });
+            });
+            
+        });
+
+        $('#tanda').change(function() {
+            $.post('<?php echo Yii::app()->getBaseUrl(true) ?>/procesoEmbutido/GetCantidadEntranteTanda',
+            {
+                ordenProduccion:$("#tanda").val(),
+            },function(res)
+            {
+                $("#cantidad_entrante").val(res);
+            });
         });
 
         $('#producto').typeahead({
@@ -187,6 +366,12 @@
         });
     });    
 
+    function calcularDiferencia(key,estimado)
+    {
+        dif = $("#valor_real_"+key).val() - estimado;
+        $("#diferencia_"+key).val(dif);
+    }
+
     function aplicarSelect2(fila)
     {
         $(".producto[fila='"+fila+"']").select2({
@@ -213,8 +398,8 @@
             escapeMarkup: function (m) { return m; } 
         });
 
-        $(".lote[fila='"+fila+"']").select2({
-            placeholder: "Buscar lote...",
+        $(".tipo1[fila='"+fila+"']").select2({
+            placeholder: "Buscar tipo...",
             minimumInputLength: 0,
             width:'resolve',
             ajax: {  
@@ -251,7 +436,7 @@
 
             $.each(formula, function(i, item) {
                 if(producto == item.producto && item.insumo_id == insumo)
-                    estimado = Math.round((cantidad)/(item.peso)) * item.longitud ;
+                    estimado = Math.round((cantidad)/(item.peso)) * 1000;
                 else 
                     estimado = 0;
             });

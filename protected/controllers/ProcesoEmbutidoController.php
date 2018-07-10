@@ -1,4 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(-1);
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods:GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Headers:Content-type, X-Requested-With");
 
 class ProcesoEmbutidoController extends Controller
 {
@@ -46,8 +52,12 @@ class ProcesoEmbutidoController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','admin','create','update','delete','GetProducto','generarTablaInsumos','eliminarTablaInsumos'),
+				'actions'=>array('Estimado','eliminarDetalle','index','view','admin','create','update','delete','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
+			),
+			array('allow',  // allow all users to perform 'index' and 'view' actions
+				'actions'=>array('Estimado','index','view','admin','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
+                'expression' => 'Yii::app()->user->checkAccess("Embutidor")',
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -75,6 +85,7 @@ class ProcesoEmbutidoController extends Controller
 		$transaction = Yii::app()->db->beginTransaction();
         try
         {
+        	
 			$model=new ProcesoEmbutido;
 
 			// Uncomment the following line if AJAX validation is needed
@@ -82,7 +93,7 @@ class ProcesoEmbutidoController extends Controller
 
 			if(isset($_POST['ProcesoEmbutido']))
 			{
-				
+
 				$model->attributes = $_POST['ProcesoEmbutido'];
 				if($model->save())
 				{
@@ -98,42 +109,20 @@ class ProcesoEmbutidoController extends Controller
 							$modelEmbutidoProductos->cantidad            = $value['cantidad'];
 							$modelEmbutidoProductos->producto_id         = $value['producto'];
 							$modelEmbutidoProductos->estimado            = $value['estimado'];
-							$modelEmbutidoProductos->unidades_salientes  = $value['unidades_salientes'];
+							$modelEmbutidoProductos->tipo                = $value['tipo'];
+							$modelEmbutidoProductos->peso                = $value['peso'];
+							$modelEmbutidoProductos->longitud            = $value['longitud'];
+							$modelEmbutidoProductos->valor_real          = $value['real'];
+							$modelEmbutidoProductos->diferencia          = $value['diferencia'];
+
 							if(!$modelEmbutidoProductos->save())
 							{
 								$transaction->rollback();
-            					Yii::log("Error control de producciones trazabilidad : ".print_f($modelEmbutidoProductos->getErrors(),true), 'error', 'application.controllers.TercerosmetasController');
+            					Yii::log("Error control de producciones trazabilidad : ".print_r($modelEmbutidoProductos->getErrors(),true), 'error', 'application.controllers.TercerosmetasController');
 							}
 						}
 					}
-					$detalle = Yii::app()->user->insumos;		
-					foreach ($detalle as $key => $value) {
-						$modelEmbutidoInusmos                      = new EmbutidoInsumos;
-						$modelEmbutidoInusmos->fecha               = date('Y-m-d H:i:s');
-						$modelEmbutidoInusmos->proceso_embutido_id = $model->id;
-						$modelEmbutidoInusmos->cantidad            = $value['cantidad'];
-						$modelEmbutidoInusmos->porcion             = $value['porcion'];
-						$modelEmbutidoInusmos->insumo_id           = $value['insumo'];
-						$modelEmbutidoInusmos->estimado            = $value['estimado'];
-
-						$prod = Producto::model()->findByAttributes(array('nombre'=>$value['producto']));
-						if(isset($prod))
-						{
-							$modelEmbutidoInusmos->producto_id = $prod->id;
-							if(!$modelEmbutidoInusmos->save())
-							{
-								$transaction->rollback();
-            					Yii::log("Error control de producciones trazabilidad : ".print_f($modelEmbutidoProductos->getErrors(),true), 'error', 'application.controllers.TercerosmetasController');
-							}
-
-						}
-						else
-						{
-							$transaction->rollback();
-        					Yii::log("no existe produto ", 'error', 'application.controllers.TercerosmetasController');
-
-						}
-					}	
+					
 					
         			$transaction->commit();
 					$this->redirect(array('view','id'=>$model->id));
@@ -167,14 +156,153 @@ class ProcesoEmbutidoController extends Controller
 
 		if(isset($_POST['ProcesoEmbutido']))
 		{
-			$model->attributes=$_POST['ProcesoEmbutido'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			
+			if(!Yii::app()->user->checkAccess("Admin1"))
+			{
+				$datos = [];
+				$producto_ids = $_POST['ProcesoEmbutido']['producto_id'];
+				foreach ($producto_ids as $key => $producto_id) {
+					if(!isset($datos[$producto_id]))
+						$datos[$producto_id] = [
+												'valor_real'  => $_POST['ProcesoEmbutido']['valor_real'][$key],
+												'diferencias' => $_POST['ProcesoEmbutido']['diferencia'][$key]
+											];
+					
+				}
+
+				$model->attributes=$_POST['ProcesoEmbutido'];
+				if($model->save())
+				{
+
+					foreach ($datos as $producto_id => $value) {
+						$modelEmbutidoProductos             = EmbutidoProductos::model()->findByAttributes(array('proceso_embutido_id' => $model->id,'producto_id'=>$producto_id));
+						$modelEmbutidoProductos->valor_real = round($value['valor_real'],2);
+						$modelEmbutidoProductos->diferencia = round($value['diferencias'],2);
+						if(!$modelEmbutidoProductos->save())
+						{
+							print_r($modelEmbutidoProductos->getErrors());
+							exit;
+						}
+					}
+
+					$this->redirect(array('view','id'=>$model->id));
+				}
+			}
+			else
+			{
+				$model->attributes = $_POST['ProcesoEmbutido'];
+				$productos         = $_POST['productos'];
+				
+				if($model->save())
+				{
+					foreach ($productos as $key => $producto) {
+						$modelEmbutidoProductos = EmbutidoProductos::model()->findByAttributes(array('proceso_embutido_id' => $model->id,'producto_id'=>$producto['producto']));
+						if(isset($modelEmbutidoProductos))
+						{
+							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
+							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
+							$modelEmbutidoProductos->cantidad            = $producto['cantidad'];
+							$modelEmbutidoProductos->producto_id         = $producto['producto'];
+							$modelEmbutidoProductos->estimado            = $producto['estimado'];
+							$modelEmbutidoProductos->tipo                = $producto['tipo'];
+							$modelEmbutidoProductos->peso                = $producto['peso'];
+							$modelEmbutidoProductos->longitud            = $producto['longitud'];
+							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
+							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
+							$modelEmbutidoProductos->save();
+						}
+						else
+						{
+							$modelEmbutidoProductos 					 = new EmbutidoProductos();
+							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
+							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
+							$modelEmbutidoProductos->cantidad            = $producto['cantidad'];
+							$modelEmbutidoProductos->producto_id         = $producto['producto'];
+							$modelEmbutidoProductos->estimado            = $producto['estimado'];
+							$modelEmbutidoProductos->tipo                = $producto['tipo'];
+							$modelEmbutidoProductos->peso                = $producto['peso'];
+							$modelEmbutidoProductos->longitud            = $producto['longitud'];
+							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
+							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
+							$modelEmbutidoProductos->save();
+						}
+					}
+				}
+			}
 		}
 
 		$this->render('update',array(
 			'model'=>$model,
 		));
+	}
+
+	public function actionGetEstimado()
+	{
+		$postdata   = file_get_contents("php://input");
+		$request    = json_decode($postdata);
+		$producto = $request->producto;
+		$cantidad = $request->cantidad;		
+		$tipo     = $request->tipo;
+
+		$model = FormulaEstimado::model()->findByAttributes(array('producto_id'=>$producto,'insumo_id'=>$tipo));
+		if(isset($model))
+		{
+			$estimado = ($cantidad/$model->peso) * 1000;
+			$envio = ['estimado'=>round($estimado,2),'peso'=>$model->peso,'longitud'=>round($model->longitud,2)];
+			echo json_encode($envio);
+		}
+	}
+
+	public function actionEstimado()
+	{
+		$producto = $_POST['producto'];
+		$cantidad = $_POST['cantidad'];		
+		$tipo     = $_POST['tipo'];
+
+		$model = FormulaEstimado::model()->findByAttributes(array('producto_id'=>$producto,'insumo_id'=>$tipo));
+		if(isset($model))
+		{
+			$estimado = ($cantidad/$model->peso) * 1000;
+			$envio = ['estimado'=>round($estimado,2),'peso'=>$model->peso,'longitud'=>round($model->longitud,2)];
+			echo json_encode($envio);
+		}
+	}
+
+	public function actionGetTanda()
+	{
+		$fecha    = $_POST['fecha'];
+		$criteria = new CDbCriteria(array('order'=>'id ASC'));
+		$sql   = "SELECT *
+				  FROM ctrl_producciones_trazabilidad 
+				  WHERE id NOT IN (
+				  	SELECT tanda
+				    FROM proceso_embutido 
+				  ) 
+				  AND fecha =:fecha 
+				  ORDER BY id ASC";
+
+		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':fecha'=>$fecha));
+		
+		if(isset($datos))
+		{
+			$arreglo = [];
+			foreach ($datos as $key => $value) {
+				$n = $key +1;
+				$arreglo[$key]['id']    = $value['id'];
+				$arreglo[$key]['datos'] = $value['fecha']." ".(int)$n." ".$value['producto0']->nombre;
+			}
+			echo json_encode($arreglo);
+			// $model = new ProcesoEmbutido;
+			// $this->renderPartial('_getTanda', array('ordenProduccion'=>$datos,'model'=>$model));
+		}
+		
+	}
+
+	public function actionGetCantidadEntranteTanda()
+	{
+		$ordenProduccion = $_POST['ordenProduccion'];
+		$model = CtrlProduccionesTrazabilidad::model()->findByPk($ordenProduccion);
+		echo $model->peso;
 	}
 
 	public function actionGenerarTablaInsumos()
@@ -332,5 +460,16 @@ class ProcesoEmbutidoController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+	}
+
+
+	public function actionEliminarDetalle()
+	{
+		$id = $_POST['id'];
+		$detalle = EmbutidoProductos::model()->findByPk($id);
+		$id = $detalle->proceso_embutido_id;
+		$detalle->delete();
+        $embutidoProductos = EmbutidoProductos::model()->findAllByAttributes(array('proceso_embutido_id'=>$id));
+		echo $this->renderPartial('tabla', array('embutidoProductos'=>$embutidoProductos));
 	}
 }

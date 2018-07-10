@@ -187,7 +187,7 @@
                         <tr ng-repeat="solicitud in solicitudes">
                             <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>
                             <td><div align="center">
-                                    <select name="Traslados[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select" fila={{solicitud.fila}}  ng-model=solicitud.cliente>
+                                <select name="Traslados[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select" fila={{solicitud.fila}}  ng-model=solicitud.cliente>
                                     <option value="88">Carvajal</option>
                                 </select>
                                 </div></td>

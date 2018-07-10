@@ -13,11 +13,11 @@
 <div class="CSSTableGenerator" >
 	<table width="100%" border="1">
 		<tr>
-			<td align="center"></td>
 			<td align="left"><strong>INSUMO</strong></td>	
 			<td align="center">PESO</td>
 			<td align="center">CANTIDAD </td>
 			<td align="center">LOTE</td>
+			<td align="center">Accion</td>
 		</tr>	
 		<?php
 
@@ -33,14 +33,14 @@
 					{
 						foreach ($value['recepcion'] as $k => $val) {
 							if(isset($val->peso))
-								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso,2) ." Kg</option>";
+								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso,4) ." Kg</option>";
 							else
-								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso_total,2) ." Kg</option>";
+								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso_total,4) ." Kg</option>";
 						}
 					}
 					echo "</select>
 						</td>";
-					echo "<td align='left'><input type='button' name='add' value='adicionar' class='tr_clone_add btn primary btn'></td>";
+					echo "<td align='left'><input type='button' name='add' value='adicionar' class='tr_clone_add btn-primary btn'></td>";
 				echo "</tr>";
 			}
 		?>	
@@ -49,6 +49,8 @@
 <br>
 
 <script type="text/javascript">
+	
+	
 	function clonarFila(obj)
     {
         var $tableBody = $('#table').find("tbody"),
@@ -62,9 +64,11 @@
 	    var $clone = $tr.clone();
 	    $clone.find(':text').val('');
 	    $clone.find(':button').hide();
+        console.log($clone.find(':text'));
+
 	    nameText = $clone.find(':text').attr("name");
 	    nameSelect = $clone.find('.select2').attr("name");
-	    console.log("nt="+nameText);
+        console.log("nt="+nameText+" nt0="+nameText.indexOf('[0]'));
 	    
 	    if(nameText.indexOf('[0]') > -1)
 	    {

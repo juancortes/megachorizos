@@ -24,10 +24,44 @@ function($scope, $filter,$http)
     return total;
   };
   
-  $scope.sumarTotal = function(fila){
-    console.log("fila="+fila);
+    $scope.sumarTotal = function(fila){
+        console.log("fila="+fila);
+    }
 
-  }
+    $scope.sumarCantidadEntrante = function(fila){
+        var total = 0.0;
+        angular.forEach($scope.solicitudes, function(solicitud){
+          total += parseFloat(solicitud.cantidad);
+        });
+        console.log("total="+(total).toFixed(2));
+
+        if((total).toFixed(2) != $("#cantidad_entrante").val())
+          $("#btn_enviar").hide('slow');
+        else
+          $("#btn_enviar").show('slow');
+
+    }
+
+
+
+    $scope.setTipo = function(fila){
+        var fila     = $scope.ultimaFila;
+        var producto = angular.element('[id="producto_'+fila+'"]').val();
+        var cantidad = angular.element('[id="cantidad_'+fila+'"]').val();
+        var tipo     = angular.element('[id="tipo_'+fila+'"]').val();
+        
+
+        if(producto != undefined && producto != '' && cantidad != undefined && cantidad != ''
+            && tipo != undefined && tipo != '')
+        {
+            var conAjax = $http.post("getEstimado", {producto: producto, cantidad: cantidad, tipo:tipo});
+            conAjax.success(function(respuesta){
+               angular.element('[id="longitud_'+fila+'"]').val(respuesta.longitud);
+               angular.element('[id="peso_'+fila+'"]').val(respuesta.peso);
+               angular.element('[id="estimado_'+fila+'"]').val(respuesta.estimado);
+            });
+        }
+    }
   
   $scope.addSolicitud = function(){
     $scope.ultimaFila++;
@@ -37,6 +71,8 @@ function($scope, $filter,$http)
       loteInterno:null,
       cantidad:null
     });
+
+    console.log('siii');
 
     var fila       = $scope.ultimaFila - 1;
     var productonc = angular.element('[id="productonc_'+fila+'"]').val();
@@ -48,6 +84,7 @@ function($scope, $filter,$http)
       var conAjax = $http.post("guardarSesion", {productonc: productonc, lote: lote, cantidad: cantidad});
       conAjax.success(function(respuesta){
            console.log(respuesta);
+
       });
     } 
   };
@@ -140,7 +177,7 @@ app2.controller('jCtrl2', ['$scope', '$filter','$http', function($scope, $filter
     return total;
   };
   
- 
+    
   
   $scope.addSolicitudInsumo = function(){
     $scope.ultimaFila++;
@@ -188,6 +225,21 @@ app.controller('jCtrl', ['$scope', '$filter','$http', function($scope, $filter,$
     });
     return total;
   };
+
+  $scope.setCantidad = function(fila){
+        console.log('ss');
+        var fila = $scope.ultimaFila;
+        var lote = angular.element('[id="lote_'+fila+'"]').val();
+        var producto_id = angular.element('[id="producto_'+fila+'"]').val();
+        if(lote != undefined && lote != '' && producto_id != undefined && producto_id != '')
+        {
+            var conAjax = $http.post("getCantidad", {orden: lote,producto_id: producto_id});
+            conAjax.success(function(respuesta){
+               console.log(respuesta);
+               angular.element('[id="cantidad_'+fila+'"]').val(respuesta.cantidad);
+            });
+        }
+    }
   
  
   $scope.sumarTotal = function(fila){
@@ -200,6 +252,19 @@ app.controller('jCtrl', ['$scope', '$filter','$http', function($scope, $filter,$
       $("#btn_ingresar").hide('slow');
     else
       $("#btn_ingresar").show('slow');
+
+  }
+
+  $scope.sumarCantidadEntrante = function(fila){
+    var total = 0.0;
+    angular.forEach($scope.solicitudes, function(solicitud){
+      total += parseFloat(solicitud.peso_total);
+    });
+
+    if(total != $("#peso_orden_produccion").val())
+      $("#btn_enviar").hide('slow');
+    else
+      $("#btn_enviar").show('slow');
 
   }
 
@@ -225,6 +290,10 @@ app.controller('jCtrl', ['$scope', '$filter','$http', function($scope, $filter,$
         });
     }
   }
+
+    
+
+     
   
   $scope.addSolicitud = function(){
     $scope.ultimaFila++;

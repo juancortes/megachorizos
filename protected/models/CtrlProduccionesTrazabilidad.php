@@ -69,39 +69,40 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 		{
 			$formulacion = Formulacion::model()->findAllByAttributes(array('producto_id' => $_POST['CtrlProduccionesTrazabilidad']['producto']));
 			$ingreso     = $_POST['CtrlProduccionesTrazabilidad']['detalle'];
+			Yii::log('ingreso='.print_r($formulacion,true), 'error', 'application.controllers.TercerosmetasController');
 			
 			foreach ($ingreso as $key => $value) {
 				
-					foreach ($value as $insumo => $lote) {
-						$ins = explode('_', $insumo);
+				foreach ($value as $insumo => $lote) {
+					$ins = explode('_', $insumo);
 
-						if($lote != '' && $ins[0] == 'cantidad')
-						{
-							if(!isset($datos[$ins[1]]))
-								$datos[$ins[1]] = 0;
-							$datos[$ins[1]] += $lote;
-						}
+					if($lote != '' && $ins[0] == 'cantidad')
+					{
+						if(!isset($datos[$ins[1]]))
+							$datos[$ins[1]] = 0;
+						$datos[$ins[1]] += $lote;
 					}
+				}
 			}
+			Yii::log('datos='.print_r($datos,true), 'error', 'application.controllers.TercerosmetasController');
 
-			
-
-			
 			if(count($datos) != count($formulacion))
 			{
+				Yii::log("cantidad datos=".count($datos).' cant formulacion='.count($formulacion), 'error', 'application.controllers.TercerosmetasController');
+				
 				$this->addError($att, "No ha ingresado el total de insumos la formulacion");
 				return;
 			}
 			else
 			{
-			Yii::log("formulacion enviada=".print_r($datos,true), 'error', 'application.controllers.TercerosmetasController');
+				Yii::log("formulacion enviada=".print_r($datos,true), 'error', 'application.controllers.TercerosmetasController');
 
 				foreach ($formulacion as $key => $value) {
 					if(round($this->cant_produccion * $value->peso,2) != round($datos[$value->materia_prima],2))
 					{
-			Yii::log("materia_prima enviada=".print_r($value->materia_prima,true), 'error', 'application.controllers.TercerosmetasController');
-			Yii::log("cant_produccion enviada=".print_r($this->cant_produccion,true), 'error', 'application.controllers.TercerosmetasController');
-			Yii::log("peso formula=".print_r($value->peso,true), 'error', 'application.controllers.TercerosmetasController');
+						Yii::log("materia_prima enviada=".print_r($value->materia_prima,true), 'error', 'application.controllers.TercerosmetasController');
+						Yii::log("cant_produccion enviada=".print_r($this->cant_produccion,true), 'error', 'application.controllers.TercerosmetasController');
+						Yii::log("peso formula=".print_r($value->peso,true), 'error', 'application.controllers.TercerosmetasController');
 						$this->addError($att, "No ha ingresado la totalidad de la formulacion");
 						return;
 					}
@@ -186,19 +187,29 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
-	}
-
-	
+	}	
 
 	public function getTanda()
 	{
-		$c=new CDbCriteria;
-		$c->select = "t.id,  CONCAT(fecha,' - ' ,orden_produccion, ' - ', p.nombre) AS orden_produccion";
-		$c->join   = "INNER JOIN producto p ON t.producto = p.id";
+		$c                         =new CDbCriteria;
+		$c->select                 = "t.id,  CONCAT(fecha,' - ' ,orden_produccion, ' - ', p.nombre) AS orden_produccion";
+		$c->join                   = "INNER JOIN producto p ON t.producto = p.id";
 		$c->addCondition('t.estado = 1');
-		$c->order  = "fecha, orden_produccion, p.nombre";
+		$c->order                  = "fecha, orden_produccion, p.nombre";
+		$model                     = $this->findAll($c);
+		return CHtml::listData($model, 'id', 'orden_produccion'); 
+	}
 
-		$model = $this->findAll($c);
+	public function getTanda2()
+	{
+		$sql = "SELECT ep.id,
+					CONCAT(orden.fecha,' - ', p.nombre) AS orden_produccion
+				FROM proceso_embutido pe
+				INNER JOIN embutido_productos ep ON ep.proceso_embutido_id = pe.id
+				INNER JOIN producto p ON p.id = ep.producto_id
+				INNER JOIN ctrl_producciones_trazabilidad orden ON orden.id = pe.tanda";
+		$model = $this->findAllBySql($sql);
+		
 		return CHtml::listData($model, 'id', 'orden_produccion'); 
 	}
 

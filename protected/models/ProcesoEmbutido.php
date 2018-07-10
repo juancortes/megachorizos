@@ -7,7 +7,7 @@
  * @property integer $id
  * @property string $fecha
  * @property string $tanda
- * @property integer $cantidad_entrante
+ * @property double $cantidad_entrante
  * @property integer $averias_totales
  * @property string $observaciones
  *
@@ -41,9 +41,10 @@ class ProcesoEmbutido extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('fecha, tanda', 'required'),
-			array('cantidad_entrante, averias_totales', 'numerical', 'integerOnly'=>true),
+			array('fecha', 'required'),
+			array(' averias_totales', 'numerical', 'integerOnly'=>true),
 			array('observaciones', 'length', 'max'=>200),
+			array('cantidad_entrante', 'numerical'),
 			array('tanda', 'length', 'max'=>10),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

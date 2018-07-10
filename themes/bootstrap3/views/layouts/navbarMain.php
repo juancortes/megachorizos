@@ -159,6 +159,23 @@ $this->widget('bootstrap.widgets.BsNavbar', array(
 								),					
 						)
 					),
+
+					array(
+						'label' => 'Trazabilidad',
+						'visible' => Yii::app()->user->checkAccess("Embutidor1") ,
+						'url' => array(
+							'#'
+							),
+						'items' => array(						
+							array(
+							'label' => 'Embutidora',
+							'url' => array(
+								'/procesoEmbutido/admin'
+								)
+							),
+						)
+					),
+
 					array(
 						'label' => 'Trazabilidad',
 						'visible' => Yii::app()->user->checkAccess("Despachos") ,
@@ -204,6 +221,7 @@ $this->widget('bootstrap.widgets.BsNavbar', array(
 							),	
 						)
 					),
+					
 					array(
 						'label' => 'Parametrizacion',
 						'visible' => Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin") ,

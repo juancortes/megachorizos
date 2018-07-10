@@ -9,8 +9,8 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-    array('icon' => 'glyphicon glyphicon-plus-sign','label'=>'Create ProcesoEmbutido', 'url'=>array('create')),
-    array('icon' => 'glyphicon glyphicon-tasks','label'=>'Manage ProcesoEmbutido', 'url'=>array('admin')),
+    array('icon' => 'glyphicon glyphicon-plus-sign','label'=>'Crear Proceso Embutido', 'url'=>array('create')),
+    array('icon' => 'glyphicon glyphicon-tasks','label'=>'Administrar Proceso Embutido', 'url'=>array('admin')),
 );
 ?>
 

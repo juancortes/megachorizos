@@ -31,6 +31,8 @@
             dateFormat: "yy-mm-dd",
             
         });
+
+        
     });
 
 </script>
@@ -49,8 +51,7 @@
     <?php echo $form->errorSummary($model); ?>
 
     <?php echo $form->textFieldControlGroup($model,'fecha',array('id'=>'fecha')); ?>
-    <?php echo $form->dropDownListControlGroup($model, 'tanda', CtrlProduccionesTrazabilidad::model()->getTanda(), array('id' => 'tanda', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
-    <?php echo $form->dropDownListControlGroup($model, 'producto', Producto::model()->getProducto(), array('id' => 'producto', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
+    <?php echo $form->dropDownListControlGroup($model, 'tanda', CtrlProduccionesTrazabilidad::model()->getTanda2(), array('id' => 'tanda','empty'=>'Seleccione una tanda', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
     <?php echo $form->textFieldControlGroup($model,'cantidad',array('maxlength'=>10)); ?>
     <?php echo $form->textFieldControlGroup($model,'averias'); ?>
     <?php echo $form->dropDownListControlGroup($model,'numero_programa',JHelper::getNumeroOpciones(), array('id' => 'numero_programa', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>

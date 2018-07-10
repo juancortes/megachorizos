@@ -8,9 +8,13 @@
  * @property string $fecha
  * @property integer $proceso_embutido_id
  * @property string $producto_id
- * @property integer $cantidad
- * @property integer $unidades_salientes
- * @property integer $estimado
+ * @property double $cantidad
+ * @property integer $tipo
+ * @property string $estimado
+ * @property double $peso
+ * @property integer $longitud
+ * @property string $valor_real
+ * @property string $diferencia
  *
  * The followings are the available model relations:
  * @property Producto $producto
@@ -34,12 +38,13 @@ class EmbutidoProductos extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('fecha, proceso_embutido_id, producto_id, cantidad, unidades_salientes, estimado', 'required'),
-			array('proceso_embutido_id, cantidad, unidades_salientes, estimado', 'numerical', 'integerOnly'=>true),
-			array('producto_id', 'length', 'max'=>10),
+			array('fecha, proceso_embutido_id, producto_id, cantidad,  estimado', 'required'),
+			array('proceso_embutido_id,  tipo,  longitud', 'numerical', 'integerOnly'=>true),
+			array('producto_id, estimado, valor_real, diferencia', 'length', 'max'=>10),
+			array('cantidad, peso', 'numerical'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, fecha, proceso_embutido_id, producto_id, cantidad, unidades_salientes, estimado', 'safe', 'on'=>'search'),
+			array('id, fecha, proceso_embutido_id, producto_id, cantidad, tipo, estimado', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,13 +67,17 @@ class EmbutidoProductos extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'fecha' => 'Fecha',
+			'id'                  => 'ID',
+			'fecha'               => 'Fecha',
 			'proceso_embutido_id' => 'Proceso Embutido',
-			'producto_id' => 'Producto',
-			'cantidad' => 'Cantidad',
-			'unidades_salientes' => 'Unidades Salientes',
-			'estimado' => 'Estimado',
+			'producto_id'         => 'Producto',
+			'cantidad'            => 'Cantidad',
+			'tipo'                => 'Tipo',
+			'estimado'            => 'Estimado',
+			'peso'                => 'Peso',
+			'longitud'            => 'Longitud',
+			'valor_real'          => 'Valor Real',
+			'diferencia'          => 'Diferencia',
 		);
 	}
 
@@ -95,8 +104,13 @@ class EmbutidoProductos extends CActiveRecord
 		$criteria->compare('proceso_embutido_id',$this->proceso_embutido_id);
 		$criteria->compare('producto_id',$this->producto_id,true);
 		$criteria->compare('cantidad',$this->cantidad);
-		$criteria->compare('unidades_salientes',$this->unidades_salientes);
+		$criteria->compare('tipo',$this->tipo);
 		$criteria->compare('estimado',$this->estimado);
+		$criteria->compare('peso',$this->peso);
+		$criteria->compare('longitud',$this->longitud);
+		$criteria->compare('valor_real',$this->valor_real);
+		$criteria->compare('diferencia',$this->diferencia);
+
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

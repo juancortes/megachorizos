@@ -118,10 +118,10 @@ class InventarioEmpaqueVacioController extends Controller
 
 	public function actionGetLote()
 	{
-		$lote = Producto::model()->findAllBySql('SELECT concat(orden_produccion,"-",fecha) AS id, concat(orden_produccion,"-",fecha) AS nombre, p.cantidad  FROM  ctrl_producciones_trazabilidad c inner join producto p on p.id = c.producto WHERE  producto LIKE :producto AND cant_produccion > 0  ORDER BY producto ',array(':producto'=>'%'.$_POST['producto'].'%'));
+		$lote = Producto::model()->findAllBySql('SELECT concat(c.id,"-",fecha) AS id, concat(c.id,"-",fecha) AS nombre, p.cantidad  FROM  ctrl_producciones_trazabilidad c inner join producto p on p.id = c.producto WHERE  producto LIKE :producto AND cant_produccion > 0  ORDER BY producto ',array(':producto'=>'%'.$_POST['producto'].'%'));
 		echo CJSON::encode(array(
 			'deptos'=>$lote,
-			)
+			) 
 		);
 	}
 
