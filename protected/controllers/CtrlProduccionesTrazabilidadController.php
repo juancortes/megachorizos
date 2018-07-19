@@ -88,6 +88,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 																			'condition'=>'materia_prima_insumo =:mpi AND peso_total > :peso',
 																			'params'=> array(':mpi'=>$matPrima,':peso'=>0)
 																		));
+			
 			$v         = 0;
 			$insumo1[] = array( 'insumo'       => $insumo->materia_prima,
 								'total_insumo' => $insumo->cantidad,
@@ -444,17 +445,23 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 
 	public function actionGetLote() {
 		$producto = $_POST['producto'];
-		$sql      = 'SELECT rmnc.id, concat(lote_interno," - ",fec_ingreso," - ", cantidad) AS lote_interno
+		$sql      = 'SELECT rmnc.id, concat(lote_interno," - ",fec_ingreso," - ", round(peso_total,2)) AS lote_interno
 					FROM recepcion_materia_prima_no_carnica rmnc
 					INNER JOIN insumo i ON i.id = rmnc.materia_prima_insumo
 			       	WHERE materia_prima_insumo = :insumo
 			       		AND peso_total > 0		       		
 			       	UNION
-			       	SELECT rv.id, concat(lote_interno," - ",fecha_lote," - ", cantidad) AS lote_interno
+			       	SELECT rv.id, concat(lote_interno," - ",fecha_lote," - ", round(peso_total,2)) AS lote_interno
 					FROM recepcion_vegetales rv
 					INNER JOIN insumo i ON i.id = rv.materia_prima_insumo
 			       	WHERE materia_prima_insumo = :insumo
 			       		AND peso_total > 0
+			       	UNION
+			       	SELECT rmc.id, concat(lote_interno," - ",fec_ingreso," - ", round(peso,2)) AS lote_interno
+					FROM recepcion_materia_prima_carnica rmc
+					INNER JOIN insumo i ON i.id = rmc.materia_prima_insumo
+			       	WHERE materia_prima_insumo = :insumo
+			       		AND peso > 0
 		       	';
 		$lote = RecepcionMateriaPrimaNoCarnica::model()->findAllBySql($sql, array(':insumo' => $producto));
 		echo CJSON::encode(array(

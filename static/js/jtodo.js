@@ -236,7 +236,7 @@ app.controller('jCtrl', ['$scope', '$filter','$http', function($scope, $filter,$
             var conAjax = $http.post("getCantidad", {orden: lote,producto_id: producto_id});
             conAjax.success(function(respuesta){
                console.log(respuesta);
-               angular.element('[id="cantidad_'+fila+'"]').val(respuesta.cantidad);
+               angular.element('[id="cantidad_total_'+fila+'"]').val(respuesta.cantidad);
             });
         }
     }

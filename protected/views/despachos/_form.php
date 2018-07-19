@@ -61,7 +61,7 @@
 
     function aplicarEventoUnidad(fila)
     {
-        $(".cantidad[fila='"+fila+"']").attr("onChange", "validarUnidad(this);" );
+        $(".cantidad_total[fila='"+fila+"']").attr("onChange", "validarUnidad(this);" );
     }
 
     function aplicarSelect2(fila)
@@ -221,6 +221,7 @@
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cliente</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tanda</strong></FONT></td>
+                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad Total</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Observaciones</strong></FONT></td>
                         </tr>   
@@ -239,7 +240,8 @@
                                 </div>
                             </td>
                             <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}} id="lote_{{solicitud.fila}}"  ng-model=solicitud.lote ng-change="setCantidad(solicitud.fila)" ></div></td>
-                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}} id="cantidad_{{solicitud.fila}}" readonly="true"  ng-model=solicitud.cantidad></div></td>
+                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad_total]" class="cantidad_total" fila={{solicitud.fila}} id="cantidad_total_{{solicitud.fila}}" readonly="true"  ng-model=solicitud.cantidad_total></div></td>
+                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}} id="cantidad_{{solicitud.fila}}"   ng-model=solicitud.cantidad></div></td>
                             <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][observaciones]" class="observaciones" fila={{solicitud.fila}}   ng-model=solicitud.observaciones></div></td>
                         </tr>   
                     </tbody>

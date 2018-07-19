@@ -96,16 +96,21 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 			else
 			{
 				Yii::log("formulacion enviada=".print_r($datos,true), 'error', 'application.controllers.TercerosmetasController');
-
+				$error = "";
 				foreach ($formulacion as $key => $value) {
 					if(round($this->cant_produccion * $value->peso,2) != round($datos[$value->materia_prima],2))
 					{
+						$insumo = Insumo::model()->findByPk($value->materia_prima);
 						Yii::log("materia_prima enviada=".print_r($value->materia_prima,true), 'error', 'application.controllers.TercerosmetasController');
 						Yii::log("cant_produccion enviada=".print_r($this->cant_produccion,true), 'error', 'application.controllers.TercerosmetasController');
 						Yii::log("peso formula=".print_r($value->peso,true), 'error', 'application.controllers.TercerosmetasController');
-						$this->addError($att, "No ha ingresado la totalidad de la formulacion");
-						return;
+						$error .= "No ha ingresado la totalidad de la formulacion ".$insumo->materia_prima." lo que ingreso = ".$datos[$value->materia_prima]." requerido = ".round($this->cant_produccion * $value->peso,2)."<br>";
 					}
+				}
+				if($error != "")
+				{
+					$this->addError($att, $error);
+					return;
 				}
 			}
 		}

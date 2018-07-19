@@ -16,7 +16,7 @@
             buttonImageOnly: false,
             showAnim: "slideDown",
             dateFormat: "yy-mm-dd",
-        });
+        }); 
 
         $(".select2").select2({
             width:'resolve'
@@ -91,37 +91,38 @@
             escapeMarkup: function (m) { return m; }
         });
 
-        $(".cliente[fila='"+fila+"']").select2({
-            placeholder: "Buscar cliente...",
-            minimumInputLength: 1,
+        
+
+        $(".lote[fila='"+fila+"']").select2({
+            placeholder: "Buscar lote...",
+            minimumInputLength: 0,
             width:'resolve',
-            ajax: {
-                url: "../despachos/getCliente",
+            ajax: {  
+                url: "../CtrlProduccionesTrazabilidad/getLote",
                 dataType: 'json',
                 type: 'POST',
                 data: function (term, page) {
                     return {
-                        q: term,
-                        page_limit: 10
+                        q: term, 
+                        page_limit: 10,
+                        producto: getIdInsumo($(this))
                     };
                 },
-                results: function (data, page) {
+                results: function (data, page) {            
                     return {results: data.deptos};
                 }
             },
-            formatResult: movieFormatResult,
-            formatSelection: movieFormatSelection,
-            dropdownCssClass: "bigdrop",
-            escapeMarkup: function (m) { return m; }
+            formatResult: movieFormatResult2, 
+            formatSelection: movieFormatSelection2,  
+            dropdownCssClass: "bigdrop", 
+            escapeMarkup: function (m) { return m; }  
         });
-
-
 
     }
 
-    function getIdProducto(element){
+    function getIdInsumo(element){
         var fila=element.attr('fila');
-        var producto=$('.producto[fila="'+fila+'"]');
+        var producto=$('.insumo[fila="'+fila+'"]');
         var valorProducto=parseInt(producto.val());
         if(isNaN(valorProducto)){
             valorProducto=0;
@@ -147,6 +148,17 @@
             return producto.nombre;
     }
 
+    function movieFormatResult2(lote) {
+        var markup = "<table class='movie-result'><tr>";
+        markup += "<td class='movie-info'><div class='movie-title'>" + lote.lote_interno + "</div>";
+        markup += "</td></tr></table>";
+        return markup;
+    }
+
+    function movieFormatSelection2(lote) {
+        return lote.lote_interno;
+    }
+
 </script>
 <?php $form = $this->beginWidget('bootstrap.widgets.BsActiveForm', array(
 		'id' => 'traslados-form',
@@ -162,6 +174,8 @@
 
 <?php echo $form->textFieldControlGroup($model, 'fecha', array('id' => 'fecha'));?>
 <div class="form" ng-controller="jCtrl">
+        
+        </table>
         <table class="table table-bordered">
             <tr bgcolor="#A03233">
                 <td width="16%" >
@@ -169,42 +183,44 @@
                         <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
                     </div>
                 </td>
-                <td width="94%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Traslados Pedidos</strong></FONT></td>
+                <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Despachos Pedido</strong></FONT></td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="2"> 
                     <table class="table table-bordered" id ="solicitud">
-                    <thead>
+                    <thead> 
                         <tr bgcolor="#A03233">
-                            <td></td> 
+                            <td></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cliente</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Insumo</strong></FONT></td>
+                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
+                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Observaciones</strong></FONT></td>
-                        </tr>
+                        </tr>   
                     </thead>
                     <tbody>
                         <tr ng-repeat="solicitud in solicitudes">
-                            <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>
-                            <td><div align="center">
+                            <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
+                            <td> 
                                 <select name="Traslados[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select" fila={{solicitud.fila}}  ng-model=solicitud.cliente>
                                     <option value="88">Carvajal</option>
                                 </select>
-                                </div></td>
+                            </td>
                             <td>
                                 <div align="center">
-                                    <input type="text" name="Traslados[detalle][{{solicitud.fila}}][insumo]" class="insumo form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.insumo ng-change="setInsumo()">
+                                    <input type="text" name="Traslados[detalle][{{solicitud.fila}}][insumo]" class="insumo form-control select2-select"  id="insumo_{{solicitud.fila}}" fila={{solicitud.fila}} ng-model=solicitud.insumo ng-change="setInsumo()">                                       
                                 </div>
                             </td>
-                            <td><div align="center"><input type="text" name="Traslados[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
+                            <td><div align="center"><input type="text" name="Traslados[detalle][{{solicitud.fila}}][lote]"          class="lote" fila={{solicitud.fila}} id="lote_{{solicitud.fila}}"  ng-model=solicitud.lote ng-change="setCantidad(solicitud.fila)" ></div></td>
+                            <td><div align="center"><input type="text" name="Traslados[detalle][{{solicitud.fila}}][cantidad]"      class="cantidad" fila={{solicitud.fila}} id="cantidad_{{solicitud.fila}}"   ng-model=solicitud.cantidad></div></td>
                             <td><div align="center"><input type="text" name="Traslados[detalle][{{solicitud.fila}}][observaciones]" class="observaciones" fila={{solicitud.fila}}   ng-model=solicitud.observaciones></div></td>
-                        </tr>
+                        </tr>   
                     </tbody>
                     </table>
                 </td>
             </tr>
-
-        </table>
+            
+        </table> 
     </div>
 <?php echo $form->textFieldControlGroup($model, 'responsable', array('maxlength'    => 150));?>
     <?php echo $form->textFieldControlGroup($model, 'verificado', array('maxlength' => 150));?>

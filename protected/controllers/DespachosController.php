@@ -76,6 +76,7 @@ class DespachosController extends Controller
 		if(isset($_POST['Despachos']))
 		{
 			$model->attributes=$_POST['Despachos'];
+
 			if($model->save())
 			{ 
 				$detalles = $_POST['Despachos']['detalle'];
@@ -93,6 +94,9 @@ class DespachosController extends Controller
 					$producto = Producto::model()->findByPk($value['producto']);
 					$producto->cantidad -= $value['cantidad'];					
 					$producto->save();
+
+
+					// $orden = CtrlProduccionesTrazabilidad::model()
 				}
 				
 				$this->redirect(array('view','id'=>$model->id));

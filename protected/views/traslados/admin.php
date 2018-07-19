@@ -53,10 +53,7 @@ $('.search-form form').submit(function(){
         		'id',
 		'fecha',
 		'responsable',
-		'verificado',
-				array(
-					'class'=>'bootstrap.widgets.BsButtonColumn',
-				),
+		'verificado'
 			),
         )); ?>
     </div>

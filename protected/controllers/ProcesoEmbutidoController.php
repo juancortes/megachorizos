@@ -57,7 +57,7 @@ class ProcesoEmbutidoController extends Controller
 			),
 			array('allow',  // allow all users to perform 'index' and 'view' actions
 				'actions'=>array('Estimado','index','view','admin','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
-                'expression' => 'Yii::app()->user->checkAccess("Embutidor")',
+                'expression' => 'Yii::app()->user->checkAccess("Embutidor1")',
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),

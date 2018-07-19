@@ -44,6 +44,8 @@ class TrasladosController extends Controller {
 			));
 	}
 
+	
+
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
@@ -55,6 +57,7 @@ class TrasladosController extends Controller {
 		// $this->performAjaxValidation($model);
 
 		if (isset($_POST['Traslados'])) {
+			
 			$model->attributes = $_POST['Traslados'];
 			if ($model->save()) {
 				$detalles = $_POST['Traslados']['detalle'];
@@ -63,14 +66,53 @@ class TrasladosController extends Controller {
 					$det->insumo_id     = $value['insumo'];
 					$det->cantidad      = $value['cantidad'];
 					$det->observaciones = $value['observaciones'];
+					$det->cliente_id    = 88;
 					$det->traslado_id   = $model->id;
-					$det->save();
+					if($det->save())
+					{
+						$insumo = Insumo::model()->findByPk($value['insumo']);
+						$insumo->cantidad -= $value['cantidad'];
+						if($insumo->save())
+						{
+							$materiaPrima = RecepcionMateriaPrimaCarnica::model()->findByPk($value['lote']);
+							if(isset($materiaPrima))
+								$materiaPrima->peso -= $value['cantidad'];
+							if(!isset($materiaPrima))
+							{
+								$materiaPrima = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value['lote']);
+								$materiaPrima->peso_total -= $value['cantidad'];
+							}
+							if(!isset($materiaPrima))
+							{
+								$materiaPrima = RecepcionMateriaVegetañes::model()->findByPk($value['lote']);
+								$materiaPrima->peso_total -= $value['cantidad'];
+							}
 
-					$insumo = Insumo::model()->findByPk($value['insumo']);
-					$insumo->cantidad -= $value['cantidad'];
-					$insumo->save();
+							if($materiaPrima->save())
+							{
+								$this->redirect(array('view', 'id' => $model->id));
+							}
+							else
+							{
+								echo "<pre> materiaPrima error";
+								print_r($materiaPrima->getErrors());
+								exit;
+							}
+						}
+						else
+						{
+							echo "<pre> insumo error";
+							print_r($insumo->getErrors());
+							exit;
+						}
+					}
+					else
+					{
+						echo "<pre> detalle traslados error";
+						print_r($det->getErrors());
+						exit;
+					}
 				}
-				$this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
@@ -103,6 +145,7 @@ class TrasladosController extends Controller {
 		// $this->performAjaxValidation($model);
 
 		if (isset($_POST['Traslados'])) {
+			
 			$model->attributes = $_POST['Traslados'];
 			if ($model->save()) {
 				$detalles = $_POST['Traslados']['detalle'];

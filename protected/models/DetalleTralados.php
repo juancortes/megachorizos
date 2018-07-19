@@ -34,8 +34,8 @@ class DetalleTralados extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('id, insumo_id, cliente_id, cantidad, traslado_id', 'required'),
-			array('id, insumo_id, cliente_id, cantidad, traslado_id', 'length', 'max'=>10),
+			array('insumo_id, cliente_id, cantidad, traslado_id', 'required'),
+			array('insumo_id, cliente_id, cantidad, traslado_id', 'length', 'max'=>10),
 			array('observaciones', 'length', 'max'=>200),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

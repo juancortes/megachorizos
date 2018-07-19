@@ -32,10 +32,37 @@ class Despachos extends CActiveRecord
 		return array(
 			array('fecha, responsable', 'required'),
 			array('responsable, verificado', 'length', 'max'=>150),
+			array('fecha', 'validarIngreso'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, fecha, responsable, verificado', 'safe', 'on'=>'search'),
 		);
+	}
+
+	public function validarIngreso($att, $params)
+	{
+		$validacion = true;
+		$detalles = $_POST['Despachos']['detalle'];
+		$productos = [];
+		foreach ($detalles as $key => $value) {
+			
+			if(!isset($productos[$value['producto']]))
+				$productos[$value['producto']]['cantidad'] = 0;
+			$productos[$value['producto']]['cantidad'] += $value['cantidad'];
+			$productos[$value['producto']]['cantidad_total'] = $value['cantidad_total'];
+		}
+
+		foreach ($productos as $key => $value) {
+			if($value['cantidad'] != $value['cantidad_total'])
+				$validacion = false;
+		}
+		
+		if($validacion === false)
+		{
+			$this->addError($att, "La sumatoria de la cantidad no es igual a la cantidad total del producto");
+			return;
+		}
+		
 	}
 
 	/**
