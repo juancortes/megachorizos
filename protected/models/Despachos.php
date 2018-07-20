@@ -42,8 +42,8 @@ class Despachos extends CActiveRecord
 	public function validarIngreso($att, $params)
 	{
 		$validacion = true;
-		$detalles = $_POST['Despachos']['detalle'];
-		$productos = [];
+		$detalles   = $_POST['Despachos']['detalle'];
+		$productos  = [];
 		foreach ($detalles as $key => $value) {
 			
 			if(!isset($productos[$value['producto']]))
@@ -53,13 +53,13 @@ class Despachos extends CActiveRecord
 		}
 
 		foreach ($productos as $key => $value) {
-			if($value['cantidad'] != $value['cantidad_total'])
+			if($value['cantidad'] > $value['cantidad_total'])
 				$validacion = false;
 		}
 		
 		if($validacion === false)
 		{
-			$this->addError($att, "La sumatoria de la cantidad no es igual a la cantidad total del producto");
+			$this->addError($att, "La sumatoria de la cantidad supera a la cantidad total del producto");
 			return;
 		}
 		

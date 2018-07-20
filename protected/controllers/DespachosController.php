@@ -85,18 +85,48 @@ class DespachosController extends Controller
 					$det = new DetalleDespacho;
 					$det->producto 		= $value['producto'];
 					$det->lote 			= $value['lote'];
+					$det->cliente_id    = $value['cliente'];
 					$det->cantidad 		= $value['cantidad'];
 					$det->observaciones = $value['observaciones'];
+					$det->destino       = ' ';
 					$det->id_despacho 	= $model->id;
-					$det->save();
-
-					
-					$producto = Producto::model()->findByPk($value['producto']);
-					$producto->cantidad -= $value['cantidad'];					
-					$producto->save();
-
-
-					// $orden = CtrlProduccionesTrazabilidad::model()
+					if($det->save())
+					{
+						$producto = Producto::model()->findByPk($value['producto']);
+						$producto->cantidad -= $value['cantidad'];					
+						if($producto->save())
+						{
+							$embutido = ProcesoEmbutido::model()->findByAttributes(array('tanda'=>$value['lote']));
+							$detalle = EmbutidoProductos::model()->findByAttributes(array('proceso_embutido_id'=>$embutido->id,'producto_id'=>$value['producto']));
+							
+							if(isset($detalle))
+							{
+								$detalle->valor_real -= $value['cantidad'];
+								if(!$detalle->save())
+								{
+									echo "<pre>22";
+									print_r($detalle->getErrors());
+									exit;
+								}
+							}
+							else
+							{
+								exit("no encontre");
+							}
+						}
+						else
+						{
+							echo "<pre>11";
+							print_r($producto->getErrors());
+							exit;
+						}
+					}
+					else
+					{
+						echo "<pre>333";
+						print_r($det->getErrors());
+						exit;
+					}
 				}
 				
 				$this->redirect(array('view','id'=>$model->id));

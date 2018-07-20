@@ -210,6 +210,7 @@ class ProcesoEmbutidoController extends Controller
 							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
 							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
 							$modelEmbutidoProductos->save();
+							$this->redirect(array('view','id'=>$model->id));
 						}
 						else
 						{
@@ -225,6 +226,7 @@ class ProcesoEmbutidoController extends Controller
 							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
 							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
 							$modelEmbutidoProductos->save();
+							$this->redirect(array('view','id'=>$model->id));
 						}
 					}
 				}

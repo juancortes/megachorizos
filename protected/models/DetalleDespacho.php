@@ -36,7 +36,7 @@ class DetalleDespacho extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('producto, cliente_id, lote, cantidad, destino, id_despacho', 'required'),
+			array('producto, cliente_id, lote, cantidad,  id_despacho', 'required'),
 			array('producto, cliente_id, id_despacho', 'length', 'max'=>11),
 			array('lote', 'length', 'max'=>80),
 			array('cantidad', 'length', 'max'=>50),
