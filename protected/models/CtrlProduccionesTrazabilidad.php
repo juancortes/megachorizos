@@ -73,6 +73,26 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 			
 			foreach ($ingreso as $key => $value) {
 				
+					foreach ($value as $insumo => $lote) {
+						$ins = explode('_', $insumo);
+
+						if($ins[0] == 'lote')
+						{
+							if(!isset($datos[$key][$lote]))
+								$datos[$key][$lote] = $cant;
+						}
+						else
+						{
+							$cant = $lote;
+
+						}
+					}
+			}
+
+			Yii::app()->user->setState('insumos', $datos);
+
+			foreach ($ingreso as $key => $value) {
+				
 				foreach ($value as $insumo => $lote) {
 					$ins = explode('_', $insumo);
 
@@ -84,7 +104,8 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 					}
 				}
 			}
-			Yii::log('datos='.print_r($datos,true), 'error', 'application.controllers.TercerosmetasController');
+
+			 Yii::log('datos insumos='.print_r(Yii::app()->user->insumos,true), 'error', 'application.controllers.TercerosmetasController');
 
 			if(count($datos) != count($formulacion))
 			{

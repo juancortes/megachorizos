@@ -20,13 +20,40 @@
 			<td align="center">Accion</td>
 		</tr>	
 		<?php
+		if(count($sesion) != 0)
+		{
+			echo "<pre>";
+			print_r($sesion);
+			//print_r($insumo);
+			//exit;
+		}
+
 
 			foreach ($insumo as $key => $value) 
 			{
-				echo "<tr class='tr_clone' id='table'>";
+					echo "<tr class='tr_clone' id='table'>";
 					echo "<td align='left'>".$value['insumo']."</td>";
 					echo "<td align='left'>".$value['cantidad']."</td>";
-					echo "<td align='left'><input type='text' name='CtrlProduccionesTrazabilidad[detalle][$value[tipo]][cantidad_".$value['id']."]' ></td>";
+					$cant = 0;
+					$lote = 0;
+					if(isset($value['recepcion']))
+					{
+						foreach ($sesion as $id => $cantidad) {
+							foreach ($value['recepcion'] as $k => $val) {
+								if($id == $val->id)
+								{
+									$cant = $cantidad;
+									$lote = $id;
+								}
+							}
+						}
+					}
+					exit("c=".$cant);
+					if($cant != 0)
+						echo "<td align='left'><input type='text' name='CtrlProduccionesTrazabilidad[detalle][$value[tipo]][cantidad_".$value['id']."]' value='$cant' ></td>";
+					else
+						echo "<td align='left'><input type='text' name='CtrlProduccionesTrazabilidad[detalle][$value[tipo]][cantidad_".$value['id']."]' ></td>";
+					
 					echo "<td align='left'><select name='CtrlProduccionesTrazabilidad[detalle][$value[tipo]][lote_".$value['id']."]' id='lote_".$value['id']."' class='select2'>
 												<option value=''>Seleccione una opcion</option>";
 					if(isset($value['recepcion']))

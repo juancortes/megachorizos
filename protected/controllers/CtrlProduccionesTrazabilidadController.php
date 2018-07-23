@@ -63,6 +63,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 	public function actionGetTraerFormulacion() {
 		$prod     = $_POST['producto'];
 		$cantidad = $_POST['cantidad'];
+		$sesion   = $_POST['sesion'];
 
 		$formulacion = Formulacion::model()->findAllByAttributes(array('producto_id' => $prod));
 		$v       = 1;
@@ -88,20 +89,27 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 																			'condition'=>'materia_prima_insumo =:mpi AND peso_total > :peso',
 																			'params'=> array(':mpi'=>$matPrima,':peso'=>0)
 																		));
-			
+
+			if(count(Yii::app()->user->insumos) > 0)
+				$sesion = Yii::app()->user->insumos;
+			else	
+				$sesion = [];
+
+
 			$v         = 0;
 			$insumo1[] = array( 'insumo'       => $insumo->materia_prima,
 								'total_insumo' => $insumo->cantidad,
 								'cantidad'     => $peso,
 								'tipo'         => $insumo->tipo, // 0 carnico - 1 no carnico - 2 vegetales
 								'id'           => $matPrima,
-								'recepcion'    => $recepcion
+								'recepcion'    => $recepcion,
+								'sesion'	   => $sesion
 							);
 		}
  		
  		Yii::log("datos insumo1 : ".print_r($insumo1,true), 'error', 'application.controllers.TercerosmetasController');
 		
-		$this->renderPartial('_tablaIngresoFormulacion', array('model' => $formulacion, 'validacion' => $v, 'insumo' => $insumo1),false,true);
+		$this->renderPartial('_tablaIngresoFormulacion', array('model' => $formulacion, 'validacion' => $v, 'insumo' => $insumo1,'sesion'=>$sesion),false,true);
 	}
 
 	public function actionAnular() {
@@ -251,9 +259,9 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 	public function actionCargarSesion() {
 		$tcarnico  = "";
 		$tncarnico = "";
-		$cant      = count(Yii::app()->user->nocarnico);
+		$cant      = count(Yii::app()->user->insumos);
 		if ($cant != 0) {
-			$ncarnico = Yii::app()->user->nocarnico;
+			$insumos = Yii::app()->user->insumos;
 
 			$tncarnico = "<br><table with='100%' border='1' class='table table-bordered'>
 		 	<tr>
@@ -266,22 +274,22 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			    <td align='center'  bgcolor='#A03233'><FONT FACE='arial' SIZE=3 COLOR=white><strong>Lote</font></strong></td>
 			    <td align='center'  bgcolor='#A03233'><FONT FACE='arial' SIZE=3 COLOR=white><strong>Quitar</font></strong></td>
 		  	</tr>";
-			foreach ($ncarnico as $key => $value) {
+				/*foreach ($ncarnico as $key => $value) {
 
-				$prod = Insumo::model()->findByPk($value['productonc']);
-				$lote = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value['lote']);
-				$tncarnico .= "<tr>";
-				$tncarnico .= "<td align='center' bgcolor='WHITE'>".$key."</td>";
-				$tncarnico .= "<td align='center' bgcolor='WHITE'>".$prod['materia_prima']."</td>";
-				$tncarnico .= "<td align='center' bgcolor='WHITE'>".$value['cantidad']."</td>";
-				$tncarnico .= "<td align='center' bgcolor='WHITE'>".$lote['lote_interno']."-".$lote['fec_ingreso']."</td>";
-				$tncarnico .= "<td align='center' bgcolor='WHITE'><a href='#' onclick='eliminarElementoNCarnico(".$key.")'><img src='../images/borrar.png'></a></td>";
-				$tncarnico .= "</tr>";
-			}
-			$tncarnico .= "<table>";
+					$prod = Insumo::model()->findByPk($value['productonc']);
+					$lote = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value['lote']);
+					$tncarnico .= "<tr>";
+					$tncarnico .= "<td align='center' bgcolor='WHITE'>".$key."</td>";
+					$tncarnico .= "<td align='center' bgcolor='WHITE'>".$prod['materia_prima']."</td>";
+					$tncarnico .= "<td align='center' bgcolor='WHITE'>".$value['cantidad']."</td>";
+					$tncarnico .= "<td align='center' bgcolor='WHITE'>".$lote['lote_interno']."-".$lote['fec_ingreso']."</td>";
+					$tncarnico .= "<td align='center' bgcolor='WHITE'><a href='#' onclick='eliminarElementoNCarnico(".$key.")'><img src='../images/borrar.png'></a></td>";
+					$tncarnico .= "</tr>";
+				}
+				$tncarnico .= "<table>";*/
 		}
 
-		$cant = count(Yii::app()->user->carnico);
+		/*$cant = count(Yii::app()->user->carnico);
 		if ($cant != 0) {
 			$carnico  = Yii::app()->user->carnico;
 			$tcarnico = "<br><table with='100%' border='1' class='table table-bordered'>
@@ -311,7 +319,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 		}
 
 		$env = array('nocarnico' => $tncarnico, 'carnico' => $tcarnico);
-		echo json_encode($env);
+		echo json_encode($env);*/
 	}
 
 	public function actionGetCalcularPeso() {
@@ -328,9 +336,9 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 	}
 
 	public function actionQuitarSesion() {
-		Yii::app()->user->setState('carnico', array());
+		Yii::app()->user->setState('insumos', []);
 		Yii::app()->user->setState('nocarnico', array());
-
+print_r(Yii::app()->user->insumos);
 	}
 
 	public function actionEliminarTablaCarnicos() {
@@ -424,6 +432,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			$insumo = Insumo::model()->findByPk($matPrima);
 			if (isset($insumo) && $insumo->cantidad < $peso) {
 				$v         = 1;
+
 				$insumo1[] = array('insumo'   => $insumo->materia_prima,
 								   'cantidad' => ($peso-$insumo->cantidad)
 								);
@@ -707,6 +716,8 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			} else {
 				$model->orden_produccion = 1;
 			}
+			if(count(Yii::app()->user->insumos) == 0)
+				Yii::app()->user->setState('insumos', []);
 
 			$this->render('create', array(
 					'model'                     => $model,

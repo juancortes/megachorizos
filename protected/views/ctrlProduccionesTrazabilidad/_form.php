@@ -17,6 +17,7 @@
 
     $(function()
     {
+        validar();
         $(".select2").select2({
             width:'resolve'
         });
@@ -117,13 +118,46 @@
 
     });
 
+    function validar()
+    {
+        <?php 
+            if(isset(Yii::app()->user->insumos))
+                $cant = count(Yii::app()->user->insumos); 
+            else
+                $cant = count(Yii::app()->user->insumos);
+        ?>
+        alert(<?php echo $cant ?>);
+        if(<?php echo $cant ?> > 0)
+        {
+            alertify.confirm('¿Quiere volver a cargar los datos?', function(e){ 
+                if(e)
+                {
+                    // traerFormulacion(1);
+                }
+                else
+                {
+                    $.post('quitarSesion',
+                    {
+                        
 
-    function traerFormulacion()
+                    },function(res)
+                    {
+                        
+                    });
+                }
+            });
+
+        }
+    }
+
+
+    function traerFormulacion(sesion = 0)
     {
         $.post('getTraerFormulacion',
         {
             producto: $("#producto").val(),
-            cantidad: $("#cant_produccion").val()
+            cantidad: $("#cant_produccion").val(),
+            sesion: sesion
         },function(res)
         {
             if(res.search("No existe inventario para poder continuar!!!") != -1 )
