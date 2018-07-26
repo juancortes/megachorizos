@@ -90,6 +90,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 																			'params'=> array(':mpi'=>$matPrima,':peso'=>0)
 																		));
 
+
 			if(count(Yii::app()->user->insumos) > 0)
 				$sesion = Yii::app()->user->insumos;
 			else	
@@ -113,67 +114,85 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 	}
 
 	public function actionAnular() {
-		$model = CtrlProduccionesTrazabilidad::model()->findByPk($_POST['orden']);
-		if (isset($model)) {
-			$model->estado = 0;
-			$model->save();
-			{
-				$dlleCtrlProducciones = DetalleCtrlProducciones::model()->findAllByAttributes(array('ctrl_producciones_id' => $_POST['orden']));
-				if (isset($dlleCtrlProducciones)) {
-					foreach ($dlleCtrlProducciones as $key => $value) {
-						$cantidad = $model->cant_produccion;
-						if($value->tipo == 0) //no carnica
-						{
-							$formulacion = Formulacion::model()->findByAttributes(array('producto_id' => $model->producto, 'materia_prima' => $value->insumo_id));
-							$insumo = Insumo::model()->findByPk($formulacion->materia_prima);
-							if (isset($insumo)) {
-								$insumo->cantidad += ($formulacion->peso*$model->cant_produccion);
-								if (!$insumo->save()) {
-									$transaction->rollback();
-									print_r($insumo->getErrors());
-									echo "insumo<br>";
-									echo "<br>";
-									print_r($detalle);
-									exit;
-								}
+		$transaction = Yii::app()->db->beginTransaction();
+		try
+		{
+			$model = CtrlProduccionesTrazabilidad::model()->findByPk($_POST['orden']);
+			if (isset($model)) {
+				$model->estado = 0;
+				if($model->save())
+				{
+					$dlleCtrlProducciones = DetalleCtrlProducciones::model()->findAllByAttributes(array('ctrl_producciones_id' => $_POST['orden']));
+					if (isset($dlleCtrlProducciones)) {
+						foreach ($dlleCtrlProducciones as $key => $value) {
+							$cantidad = $model->cant_produccion;
+							if($value->tipo == 0) //no carnica
+							{
+								$formulacion = Formulacion::model()->findByAttributes(array('producto_id' => $model->producto, 'materia_prima' => $value->insumo_id));
+								$insumo = Insumo::model()->findByPk($formulacion->materia_prima);
+								if (isset($insumo)) {
+									$insumo->cantidad += ($formulacion->peso*$model->cant_produccion);
+									if (!$insumo->save()) {
+										$transaction->rollback();
+										print_r($insumo->getErrors());
+										echo "insumo<br>";
+										echo "<br>";
+										exit;
+									}
 
-								$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima), array('order' => 'cantidad DESC'));
-								if (isset($provInsumo)) {
-									$proveedor = $provInsumo->proveedor_id;
-									$provInsumo->cantidad += ($formulacion->peso*$model->cant_produccion);
-									if (!$provInsumo->save()) {
-										$transaction->rollback();
-										print_r($provInsumo->getErrors());
-										echo "provInsumo<br>";
-										echo "<br>";
-										print_r($detalle);
-										exit;
+									$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima), array('order' => 'cantidad DESC'));
+									if (isset($provInsumo)) {
+										$proveedor = $provInsumo->proveedor_id;
+										$provInsumo->cantidad += ($formulacion->peso*$model->cant_produccion);
+										
+										/*echo "cant=".$provInsumo->cantidad;
+										if (!$provInsumo->save()) {
+											var_dump($provInsumo->getErrors());
+											echo "provInsumo<br>";
+											echo "<br>";
+											$transaction->rollback();
+											exit;
+										}*/
+										$connection = Yii::app()->db;
+										$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $formulacion->materia_prima";
+										$command    = $connection->createCommand($sql);
+										$command->execute();
 									}
-								}
-								
-								$rmpnc = RecepcionMateriaPrimaNoCarnica::model()->findAllByAttributes(array('lote_interno' => $value->lote_interno), array('order' => 'fec_ingreso DESC'));
-								foreach ($rmpnc as $k => $val) {
-									$rmpnc1                   = RecepcionMateriaPrimaNoCarnica::model()->findByPk($val->id);
-									$rmpnc1->peso_total       = $val->peso_total+$cantidad;
-									$rmpnc1->devolucion_si_no = 0;
-									$rmpnc1->unidad           = 0;
-									if (!$rmpnc1->save()) {
-										$transaction->rollback();
-										print_r($rmpnc->getErrors());
-										echo "<br>rmpnc 22<br>";
-										echo "<br>";
-										print_r($detalle);
-										exit;
+									
+									$rmpnc = RecepcionMateriaPrimaNoCarnica::model()->findAllByAttributes(array('lote_interno' => $value->lote_interno), array('order' => 'fec_ingreso DESC'));
+									foreach ($rmpnc as $k => $val) {
+										$rmpnc1                   = RecepcionMateriaPrimaNoCarnica::model()->findByPk($val->id);
+										$rmpnc1->peso_total       = $val->peso_total+$cantidad;
+										$rmpnc1->devolucion_si_no = 0;
+										$rmpnc1->unidad           = 0;
+										if (!$rmpnc1->save()) {
+											$transaction->rollback();
+											print_r($rmpnc->getErrors());
+											echo "<br>rmpnc 22<br>";
+											echo "<br>";
+											exit;
+										}
+										$cantidad = 0;									
 									}
-									$cantidad = 0;									
 								}
 							}
 						}
 					}
+					$transaction->commit();
+					echo "Se actualizo correctamente";
 				}
-
-				echo "Se actualizo correctamente";
+				else
+				{
+					echo "<pre>";
+					print_r($model->getErrors());
+					exit;
+				}
 			}
+		}
+		catch (Exception $exc) {
+			$transaction->rollback();
+			Yii::log("Error control de producciones anular : $exc", 'error', 'application.controllers.TercerosmetasController');
+			return $exc;
 		}
 	}
 
@@ -716,8 +735,14 @@ print_r(Yii::app()->user->insumos);
 			} else {
 				$model->orden_produccion = 1;
 			}
-			if(count(Yii::app()->user->insumos) == 0)
-				Yii::app()->user->setState('insumos', []);
+
+			if(isset(Yii::app()->user->insumos))
+			{
+    			if(count(Yii::app()->user->insumos) == 0)
+    				Yii::app()->user->setState('insumos', []);
+			}
+			else
+			    Yii::app()->user->setState('insumos', []);
 
 			$this->render('create', array(
 					'model'                     => $model,

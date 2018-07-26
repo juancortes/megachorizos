@@ -126,7 +126,6 @@
             else
                 $cant = count(Yii::app()->user->insumos);
         ?>
-        alert(<?php echo $cant ?>);
         if(<?php echo $cant ?> > 0)
         {
             alertify.confirm('¿Quiere volver a cargar los datos?', function(e){ 

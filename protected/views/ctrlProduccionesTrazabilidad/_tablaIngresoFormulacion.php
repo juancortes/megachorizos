@@ -20,15 +20,6 @@
 			<td align="center">Accion</td>
 		</tr>	
 		<?php
-		if(count($sesion) != 0)
-		{
-			echo "<pre>";
-			print_r($sesion);
-			//print_r($insumo);
-			//exit;
-		}
-
-
 			foreach ($insumo as $key => $value) 
 			{
 					echo "<tr class='tr_clone' id='table'>";
@@ -38,17 +29,18 @@
 					$lote = 0;
 					if(isset($value['recepcion']))
 					{
-						foreach ($sesion as $id => $cantidad) {
+						foreach ($sesion as $id => $datos) {
 							foreach ($value['recepcion'] as $k => $val) {
-								if($id == $val->id)
-								{
-									$cant = $cantidad;
-									$lote = $id;
+								foreach ($datos as $k1 => $dato) {
+									if($k1 == $val->id)
+									{
+										$cant = $dato;
+										$lote = $k1;
+									}
 								}
 							}
 						}
 					}
-					exit("c=".$cant);
 					if($cant != 0)
 						echo "<td align='left'><input type='text' name='CtrlProduccionesTrazabilidad[detalle][$value[tipo]][cantidad_".$value['id']."]' value='$cant' ></td>";
 					else
@@ -59,10 +51,14 @@
 					if(isset($value['recepcion']))
 					{
 						foreach ($value['recepcion'] as $k => $val) {
+							$seleccionado = "";
+							if($val->id == $lote)
+								$seleccionado = "selected";
+
 							if(isset($val->peso))
-								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso,4) ." Kg</option>";
+								echo "<option value='".$val->id."' $seleccionado>".$val->lote_interno." - ". round($val->peso,4) ." Kg</option>";
 							else
-								echo "<option value='".$val->id."'>".$val->lote_interno." - ". round($val->peso_total,4) ." Kg</option>";
+								echo "<option value='".$val->id."' $seleccionado>".$val->lote_interno." - ". round($val->peso_total,4) ." Kg</option>";
 						}
 					}
 					echo "</select>

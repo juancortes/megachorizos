@@ -5,11 +5,11 @@
  *
  * The followings are the available columns in table 'ctrl_producciones_trazabilidad':
  * @property string $id
- * @property integer $orden_produccion
+ * @property string $orden_produccion
  * @property string $fecha
  * @property string $producto
  * @property string $responsable
- * @property integer $cant_produccion
+ * @property string $cant_produccion
  * @property integer $unidades_producidas
  * @property string $peso
  * @property integer $prioridad
@@ -48,10 +48,11 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('orden_produccion, fecha, producto, responsable,  peso', 'required'),
-			array('orden_produccion, cant_produccion, unidades_producidas, prioridad, estado', 'numerical', 'integerOnly'=>true),
-			array('orden_produccion, producto', 'length', 'max'=>10),
+			array('orden_produccion, fecha, producto, responsable, peso', 'required'),
+			array('unidades_producidas, prioridad, estado', 'numerical', 'integerOnly'=>true),
+			array('orden_produccion, producto', 'length', 'max'=>11),
 			array('responsable', 'length', 'max'=>255),
+			array('cant_produccion', 'length', 'max'=>8),
 			array('peso', 'length', 'max'=>15),
 			array('peso', 'validarIngreso'),
 			array('observaciones', 'length', 'max'=>150),
