@@ -30,18 +30,117 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 	public function accessRules() {
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'    => array('getTraerFormulacion','getTablaIngresoFormulacion','anular', 'getOrdenProduccion', 'getProductosnc', 'getLote', 'admin', 'create', 'index', 'view', 'delete', 'update', 'getFormulacion', 'getProveedor', 'getProductos', 'generarTablaCarnicos', 'eliminarTablaCarnicos', 'guardarSesion', 'quitarSesion', 'cargarSesion', 'eliminarSesionNCarnicos', 'EliminarSesionCarnicos', 'GetCalcularPeso', 'cargarEstimado'),
+				'actions'    => array('validarFormulacion','getTraerFormulacion','getTablaIngresoFormulacion','anular', 'getOrdenProduccion', 'getProductosnc', 'getLote', 'admin', 'create', 'index', 'view', 'delete', 'update', 'getFormulacion', 'getProveedor', 'getProductos', 'generarTablaCarnicos', 'eliminarTablaCarnicos', 'guardarSesion', 'quitarSesion', 'cargarSesion', 'eliminarSesionNCarnicos', 'EliminarSesionCarnicos', 'GetCalcularPeso', 'cargarEstimado'),
 				'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'    => array('getTraerFormulacion','getOrdenProduccion', 'getProductosnc', 'getLote', 'admin', 'create', 'index', 'view', 'getFormulacion', 'getProveedor', 'getProductos', 'generarTablaCarnicos', 'eliminarTablaCarnicos', 'guardarSesion', 'quitarSesion', 'cargarSesion', 'eliminarSesionNCarnicos', 'EliminarSesionCarnicos', 'GetCalcularPeso', 'cargarEstimado'),
+				'actions'    => array('validarFormulacion','getTraerFormulacion','getOrdenProduccion', 'getProductosnc', 'getLote', 'admin', 'create', 'index', 'view', 'getFormulacion', 'getProveedor', 'getProductos', 'generarTablaCarnicos', 'eliminarTablaCarnicos', 'guardarSesion', 'quitarSesion', 'cargarSesion', 'eliminarSesionNCarnicos', 'EliminarSesionCarnicos', 'GetCalcularPeso', 'cargarEstimado'),
 				'expression' => 'Yii::app()->user->checkAccess("Mezclador") || Yii::app()->user->checkAccess("embutidor")',
 			),
-
+			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+				'actions'    => array('getLote'),
+				'expression' => 'Yii::app()->user->checkAccess("Traslados")',
+			),
 			array('deny', // deny all users
 				'users' => array('*'),
 			),
 		);
+	}
+
+	public function actionValidarFormulacion() 
+	{
+		$form     = explode('CtrlProduccionesTrazabilidad', $_POST['form']);
+		$producto = $_POST['producto'];
+		$cantidad = $_POST['cantidad'];
+		$i        = 0;
+		$v        = true;
+		$datos    = [];
+		$validar  = true;
+
+		foreach ($form as $key ) {
+			if($i > 5 && $v === true)
+			{
+				$valor = explode('detalle', $key);
+				if(isset($valor[1]))
+					$valor = explode('[', $valor[1]);
+				else
+					$valor = explode('[', $valor[0]);
+				
+				$valor = explode('=', $valor[0]);
+				$valor[1] = substr($valor[1], 0, -1);
+				
+				$d = strpos($valor[0], 'proveedor');
+				if($d === false){ }
+				else { echo $v = false;}
+				
+				$d1 = strpos($valor[0], 'cantidad');
+				if($d1 === false && $v === true){ 
+					$d = explode('lote_', $valor[0]);
+			   		$d = explode('%', $d[1])[0];
+			   		$datos[$d]['lote'] = $valor[1];
+			   		if($valor[1] == "")
+			   		{
+			   			$validar = false;
+			   			continue;
+			   		}
+				}
+				else {
+				   	if($v === true)
+				   	{
+				   		$d = explode('cantidad_', $valor[0]);
+				   		$d = explode('%', $d[1])[0];
+				   		$datos[$d]['cantidad'] = $valor[1];
+				   		if($valor[1] == "")
+				   		{
+			   				$validar = false;
+			   				continue;
+				   		}
+				   	} 
+				}
+			}
+			$i++;
+		}
+
+		
+		if($validar === false)
+			echo json_encode(['success'=>false,'mensaje'=>'No ha ingresado todos los datos de la formula!!!']);
+		else
+		{
+			$datos2 = [];
+			$formulacion = Formulacion::model()->findAllByAttributes(array('producto_id'=>$producto));
+			if(isset($formulacion))
+			{
+				foreach ($datos as $insumo => $value) {
+					$pos = strpos($insumo, '_');
+					if($pos === false){ 
+						$datos2[$insumo] = $value;
+					}
+					else
+					{
+						$d = explode('_', $insumo)[0];
+						$datos2[$d]['cantidad'] += $value['cantidad'];
+					}
+				}
+				$datos  = $datos2;
+				$datos2 = null;
+
+			}
+			else
+				echo json_encode(['success'=>false,'mensaje'=>'Error en la formulacion!!!']);
+
+			foreach ($formulacion as $key => $value) {
+				if(round($cantidad * $value->peso,2) != round($datos[$value->materia_prima]['cantidad'],2))
+				{
+					$validar = false;
+					$insumo_falta = $value->materia_prima;
+					$cant_ingresada = $value->peso;
+				}
+			}
+			if($validar === false)
+				echo json_encode(['success'=>false,'mensaje'=>'cantidad solicitada de algun insumo incorrecto!!! insumo='.$insumo_falta." cant=".$cant_ingresada." cantidad=".$cantidad." cantidadfor=".$datos[$value->materia_prima]['cantidad']]);
+			else
+				echo json_encode(['success'=>true,'mensaje'=>'ok']);
+		}
 	}
 
 	public function actionGetOrdenProduccion() {
@@ -140,7 +239,8 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 										exit;
 									}
 
-									$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima), array('order' => 'cantidad DESC'));
+
+									$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima,'proveedor_id'=>$value->proveedor_id), array('order' => 'cantidad DESC'));
 									if (isset($provInsumo)) {
 										$proveedor = $provInsumo->proveedor_id;
 										$provInsumo->cantidad += ($formulacion->peso*$model->cant_produccion);
@@ -154,7 +254,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 											exit;
 										}*/
 										$connection = Yii::app()->db;
-										$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $formulacion->materia_prima";
+										$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $formulacion->materia_prima AND proveedor_id = $value->proveedor_id";
 										$command    = $connection->createCommand($sql);
 										$command->execute();
 									}
@@ -670,13 +770,17 @@ print_r(Yii::app()->user->insumos);
 
 								$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $insumo), array('order' => 'cantidad DESC'));
 								if (isset($provInsumo)) {
-									$provInsumo->cantidad -= $valorCantidad;
+									/*$provInsumo->cantidad -= $valorCantidad;
 									if (!$provInsumo->save()) {
 										$transaction->rollback();
-										print_r($provInsumo->getErrors());
+										var_dump($provInsumo->getErrors());
 										echo "provInsumo 2<br>";
 										exit;
-									}
+									}*/
+									$connection = Yii::app()->db;
+									$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $insumo AND proveedor_id = $proveedor";
+									$command    = $connection->createCommand($sql);
+									$command->execute();
 
 									$dlleCtrlProducciones                       = new DetalleCtrlProducciones;
 									$dlleCtrlProducciones->ctrl_producciones_id = $model->id;

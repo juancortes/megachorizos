@@ -149,7 +149,6 @@
         }
     }
 
-
     function traerFormulacion(sesion = 0)
     {
         $.post('getTraerFormulacion',
@@ -184,8 +183,6 @@
             $("#peso").val(res);
         });
     }
-
-
 
     function aplicarSelect2(fila)
     {
@@ -289,6 +286,7 @@
             escapeMarkup: function (m) { return m; } 
         });
     }
+
     function getIdProveedor(element){
         var fila=element.attr('fila');
         var proveedor=$('.proveedor[fila="'+fila+'"]');
@@ -369,7 +367,20 @@
         alertify.confirm('¿Estas seguro de enviar este formulario?', function(e){ 
             if(e)
             {
-                form.submit() 
+                var datastring = $("#ctrl-producciones-trazabilidad-form").serialize();
+                $.post('validarFormulacion',
+                {
+                    form: datastring,
+                    producto:$("#producto").val(),
+                    cantidad:$("#cant_produccion").val()
+                },function(res)
+                {
+                    obj = JSON.parse(res);
+                    if(obj.success == false)
+                        alertify.alert(obj.mensaje);
+                    else
+                        form.submit()
+                });
             }
             else
             {

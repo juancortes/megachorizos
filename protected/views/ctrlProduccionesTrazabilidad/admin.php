@@ -120,9 +120,9 @@ $('.search-form form').submit(function(){
 											 
 										 	return false;
 									 }',
-									 'visible'=>'((Yii::app()->user->checkAccess("docente")== 1 || Yii::app()->user->checkAccess("directores")== 1 ) && ($data->fecha_cierre === null ) && ($data->pet_cierre === true )) ? true: true ',
+									 'visible'=>'(Yii::app()->user->checkAccess("Admin1")== 1)  ? true: true ',
 						 	),
-						),
+					),
 				),
 			),
         )); ?>

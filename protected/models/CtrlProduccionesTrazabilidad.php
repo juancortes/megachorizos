@@ -54,7 +54,7 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 			array('responsable', 'length', 'max'=>255),
 			array('cant_produccion', 'length', 'max'=>8),
 			array('peso', 'length', 'max'=>15),
-			array('peso', 'validarIngreso'),
+			//array('peso', 'validarIngreso'),
 			array('observaciones', 'length', 'max'=>150),
 			array('aproveedor, aproducto1, acantidad, detalle1', 'safe'),
 			// The following rule is used by search().

@@ -25,8 +25,12 @@ class TrasladosController extends Controller {
 	public function accessRules() {
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'    => array('admin', 'create', 'index', 'view', 'delete', 'update', 'getInsumo','reporteTraslados'),
+				'actions'    => array('anular','admin', 'create', 'index', 'view', 'delete', 'update', 'getInsumo','reporteTraslados'),
 				'expression' => 'Yii::app()->user->checkAccess("Recepcion") || Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
+			),
+			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+				'actions'    => array('admin', 'create', 'index', 'view', 'delete', 'update', 'getInsumo','reporteTraslados'),
+				'expression' => 'Yii::app()->user->checkAccess("Traslados") || Yii::app()->user->checkAccess("Recepcion")',
 			),
 			array('deny', // deny all users
 				'users' => array('*'),
@@ -67,6 +71,7 @@ class TrasladosController extends Controller {
 					$det->cantidad      = $value['cantidad'];
 					$det->observaciones = $value['observaciones'];
 					$det->cliente_id    = 88;
+					$det->id_ctrl_producciones_trazabilidad    = $value['lote'];
 					$det->traslado_id   = $model->id;
 					if($det->save())
 					{
@@ -80,11 +85,12 @@ class TrasladosController extends Controller {
 							if(!isset($materiaPrima))
 							{
 								$materiaPrima = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value['lote']);
-								$materiaPrima->peso_total -= $value['cantidad'];
+								if(isset($materiaPrima))
+									$materiaPrima->peso_total -= $value['cantidad'];
 							}
 							if(!isset($materiaPrima))
 							{
-								$materiaPrima = RecepcionMateriaVegetañes::model()->findByPk($value['lote']);
+								$materiaPrima = RecepcionVegetales::model()->findByPk($value['lote']);
 								$materiaPrima->peso_total -= $value['cantidad'];
 							}
 
@@ -131,6 +137,70 @@ class TrasladosController extends Controller {
 				'deptos' => $insumos,
 			)
 		);
+	}
+
+	/**
+	 * consigue insumos con cantidad mayor a cero
+	 * @return [json]
+	 */
+	public function actionAnular() {
+		$transaction = Yii::app()->db->beginTransaction();
+		try
+		{
+			$id               = $_POST['traslado'];
+			$traslados        = Traslados::model()->findByPk($id);
+			$traslados->estado = 0;
+
+			if($traslados->save())
+			{
+				$detalle = DetalleTralados::model()->findAllByAttributes(array('traslado_id'=>$id));
+				if(isset($detalle))
+				{
+					foreach ($detalle as $key => $value) {
+						$insumo = Insumo::model()->findByPk($value->insumo_id);
+						$insumo->cantidad += $value->cantidad;
+						if($insumo->save())
+						{
+
+							$materiaPrima = RecepcionMateriaPrimaCarnica::model()->findByPk($value->id_ctrl_producciones_trazabilidad);
+							if(isset($materiaPrima))
+								$materiaPrima->peso -= $value->cantidad;
+
+							if(!isset($materiaPrima))
+							{
+								$materiaPrima = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value->id_ctrl_producciones_trazabilidad);
+								if(isset($materiaPrima))
+									$materiaPrima->peso_total -= $value->cantidad;								
+							}
+							if(!isset($materiaPrima))
+							{
+								$materiaPrima = RecepcionVegetales::model()->findByPk($value->id_ctrl_producciones_trazabilidad);
+								$materiaPrima->peso_total -= $value->cantidad;
+							}
+
+
+							if($materiaPrima->save())
+							{
+								$transaction->commit();
+
+								
+							}
+							else
+							{
+								echo "<pre> materiaPrima error";
+								print_r($materiaPrima->getErrors());
+								exit;
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception $exc) {
+			$transaction->rollback();
+			Yii::log("Error traslados anular : $exc", 'error', 'application.controllers.TercerosmetasController');
+			return $exc;
+		}		
 	}
 
 	/**
