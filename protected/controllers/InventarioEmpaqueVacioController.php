@@ -71,12 +71,12 @@ class InventarioEmpaqueVacioController extends Controller
 		
 				$detalles = $_POST['InventarioEmpaqueVacio']['detalle'];
 				foreach ($detalles as $key => $value) {
-					$m=new DetalleInventarioEmpaqueVacio;
-					$m->producto = $value['producto'];
-					$m->cantidad   = $value['cantidad'];
-					$m->unidad   = $value['unidad'];
-					$m->lote     = $value['lote'];
-					$m->reproceso= $value['reproceso'];
+					$m            = new DetalleInventarioEmpaqueVacio;
+					$m->producto  = $value['producto'];
+					$m->cantidad  = $value['cantidad'];
+					$m->unidad    = $value['unidad'];
+					$m->lote      = $value['lote'];
+					$m->reproceso = $value['reproceso'];
 					$m->inventario_empaque_vacio_id = $model->id;
 					$m->save();
 

@@ -135,7 +135,7 @@ $(function()
                 if($model->isNewRecord)
                     echo $form->textFieldControlGroup($model,'lote_interno',array('maxlength'=>20,'value'=>$max,'id'=>'lote_interno','readonly'=>false)); 
                 else
-                    echo $form->textFieldControlGroup($model,'lote_interno',array('maxlength'=>20,'value'=>$max,'id'=>'lote_interno','readonly'=>true)); 
+                    echo $form->textFieldControlGroup($model,'lote_interno',array('maxlength'=>20,'id'=>'lote_interno','readonly'=>true)); 
                 ?>
         </div>    
         <div class="col-md-3">

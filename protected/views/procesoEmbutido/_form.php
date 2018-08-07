@@ -174,8 +174,11 @@
                             <tr bgcolor="#A03233">
                                 <td></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Producto</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Kg)</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tipo</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Tipo</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Mts)</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Peso</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Longitud</strong></FONT></td>
                                 <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Estimado</strong></FONT></td>
@@ -191,6 +194,7 @@
                                         <input type="text" id="producto_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto >
                                     </div>
                                 </td>
+                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_producto]"          class="lote_producto" fila={{solicitud.fila}} id="lote_producto_{{solicitud.fila}}"  ng-model=solicitud.lote_producto ng-change="setCantidad(solicitud.fila)" ></div></td>
                                 <td><div align="center"><input type="text" id="cantidad_{{solicitud.fila}}" ng-keyup = "sumarCantidadEntrante(solicitud.fila)" name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad]" class="cantidad" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
                                 <td><div align="center">
                                         <select id="tipo_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][tipo]" class="tipo form-control select2-select" style="width:90%" fila={{solicitud.fila}}  ng-model=solicitud.tipo ng-change="setTipo(solicitud.fila)">
@@ -199,6 +203,8 @@
                                         </select>
                                     </div>
                                 </td>
+                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_tipo]"          class="lote_tipo" fila={{solicitud.fila}} id="lote_tipo_{{solicitud.fila}}"  ng-model=solicitud.lote_tipo ></div></td>
+                                <td><div align="center"><input type="text" id="cantidad_tipo_{{solicitud.fila}}"  name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad_tipo]" class="cantidad_tipo" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad_tipo></div></td>
                                 <td><div align="center"><div align="center"><input type="text" id="peso_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][peso]" class="peso" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.peso ></div></div></td>
                                 <td><div align="center"><input type="text" id="longitud_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][longitud]"   class="longitud"  style="width:90%"    fila={{solicitud.fila}}   ng-model=solicitud.longitud ></div></td>
                                 <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][estimado]"   class="estimado"    style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.estimado id="estimado_{{solicitud.fila}}"></div></td>
@@ -398,19 +404,20 @@
             escapeMarkup: function (m) { return m; } 
         });
 
-        $(".tipo1[fila='"+fila+"']").select2({
-            placeholder: "Buscar tipo...",
+        $(".lote_producto[fila='"+fila+"']").select2({
+            placeholder: "Buscar lote...",
             minimumInputLength: 0,
             width:'resolve',
             ajax: {  
-                url: "../inventarioEmpaqueVacio/getLote",
+                url: "../ProcesoEmbutido/getLote",
                 dataType: 'json',
                 type: 'POST',
                 data: function (term, page) {
                     return {
                         q: term, 
                         page_limit: 10,
-                        producto: getIdProducto($(this))
+                        producto: getIdProducto($(this)),
+                        fecha:$("#fecha").val()
                     };
                 },
                 results: function (data, page) {            
@@ -420,7 +427,32 @@
             formatResult: movieFormatResult, 
             formatSelection: movieFormatSelection,  
             dropdownCssClass: "bigdrop", 
-            escapeMarkup: function (m) { return m; } 
+            escapeMarkup: function (m) { return m; }  
+        });
+
+        $(".lote_tipo[fila='"+fila+"']").select2({
+            placeholder: "Buscar lote...",
+            minimumInputLength: 0,
+            width:'resolve',
+            ajax: {  
+                url: "../ProcesoEmbutido/getLoteTipo",
+                dataType: 'json',
+                type: 'POST',
+                data: function (term, page) {
+                    return {
+                        q: term, 
+                        page_limit: 10,
+                        tipo: getIdTipo($(this))
+                    };
+                },
+                results: function (data, page) {            
+                    return {results: data.deptos};
+                }
+            },
+            formatResult: movieFormatResult2, 
+            formatSelection: movieFormatSelection2,  
+            dropdownCssClass: "bigdrop", 
+            escapeMarkup: function (m) { return m; }  
         });
     }
 
@@ -457,38 +489,24 @@
         }
     }
 
-    function getIdProducto(element)
-    {
-        var fila          = element.attr('fila');
-        var producto      = $('.producto[fila="'+fila+'"]');
-        var cantidad      = $('.cantidad[fila="'+fila+'"]');
-        var valorProducto = parseInt(producto.val());
-        var cantidad      = parseInt(cantidad.val());
-
+    function getIdProducto(element){
+        var fila=element.attr('fila');
+        var producto=$('.producto[fila="'+fila+'"]');
+        var valorProducto=parseInt(producto.val());
         if(isNaN(valorProducto)){
             valorProducto=0;
         }
-
-        if(cantidad != '' && valorProducto != '')
-        {
-            formula  = <?php echo Yii::app()->user->formulaEstimado; ?>;
-
-            $.each(formula, function(i, item) {
-                if(valorProducto == item.producto_id)
-                    estimado = Math.round((cantidad)/(item.peso));
-                else 
-                    estimado = 0;
-            });
-
-            $('.estimado[fila="'+fila+'"]').val(estimado);
-            if(estimado == 0)
-            {
-                reset();
-                alertify.alert("No se ha ingresado la formula de estimados");
-            }
-        }
-
         return valorProducto;
+    }
+
+    function getIdTipo(element){
+        var fila=element.attr('fila');
+        var tipo=$('.tipo[fila="'+fila+'"]');
+        var valorTipo=parseInt(tipo.val());
+        if(isNaN(valorTipo)){
+            valorTipo = 0;
+        }
+        return valorTipo;
     }
     
     function movieFormatResult(producto) {
@@ -502,6 +520,17 @@
     function movieFormatSelection(producto) {
         cantExistente = producto.cantidad;
         return producto.nombre;
+    }
+
+    function movieFormatResult2(lote) {
+        var markup = "<table class='movie-result'><tr>";
+        markup += "<td class='movie-info'><div class='movie-title'>" + lote.lote_interno + "</div>";
+        markup += "</td></tr></table>";
+        return markup;
+    }
+
+    function movieFormatSelection2(lote) {
+        return lote.lote_interno;
     }
 
     function ingresarInsumo()

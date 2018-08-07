@@ -103,6 +103,14 @@ class RecepcionMateriaPrimaNoCarnicaController extends Controller
 					$provInsumo->save();
 				}
 
+				$provInsumo                = new ProveedorInsumoHistorico;
+				$provInsumo->proveedor_id  = $model->proveedor;
+				$provInsumo->insumo_id     = $model->materia_prima_insumo;
+				$provInsumo->cantidad      = $model->peso_total;
+				$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
+				$provInsumo->accion        = 'I';
+				$provInsumo->save();
+
 				$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
 				$insumo->cantidad += $model->peso_total;
 				if($insumo->save())

@@ -32,7 +32,26 @@
             
         });
 
-        
+        $('#fecha').change(function() {
+            $.post('<?php echo Yii::app()->getBaseUrl(true) ?>/procesoEmbutido/GetTanda',
+            {
+                fecha:$("#fecha").val(),
+            },function(res)
+            {
+                response = JSON.parse(res);
+                //vaciar cantidad entrante
+                $("#cantidad_entrante").val("");
+                
+                //limpiar los options
+                $('option', '#tanda').remove();
+                $('#tanda').append('<option value="">Seleccione una tanda</option>');
+                // Add options
+                $.each(response,function(index,data){
+                    $('#tanda').append('<option value="'+data['id']+'">'+data['datos']+'</option>');
+                });
+            });
+            
+        });
     });
 
 </script>
@@ -51,7 +70,7 @@
     <?php echo $form->errorSummary($model); ?>
 
     <?php echo $form->textFieldControlGroup($model,'fecha',array('id'=>'fecha')); ?>
-    <?php echo $form->dropDownListControlGroup($model, 'tanda', CtrlProduccionesTrazabilidad::model()->getTanda2(), array('id' => 'tanda','empty'=>'Seleccione una tanda', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
+    <?php echo $form->dropDownListControlGroup($model, 'tanda', [], array('id' => 'tanda','empty'=>'Seleccione una tanda', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>
     <?php echo $form->textFieldControlGroup($model,'cantidad',array('maxlength'=>10)); ?>
     <?php echo $form->textFieldControlGroup($model,'averias'); ?>
     <?php echo $form->dropDownListControlGroup($model,'numero_programa',JHelper::getNumeroOpciones(), array('id' => 'numero_programa', 'class'=>'select select2 demo ',  'style' => 'width: 80%;'));  ?>

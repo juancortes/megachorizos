@@ -1,3 +1,22 @@
+<style type="text/css" media="screen">
+.pic-container {
+  width: 1350px;
+  margin: 0 auto;
+  white-space: nowrap;
+}
+
+.pic-row {
+  /* As wide as it needs to be */
+  width: 1288px;
+  height: 300px;
+  overflow: auto;
+}
+
+.pic-row a {
+  clear: left;
+  display: block;
+}
+</style>
 <script type="text/javascript" src="<?php echo Yii::app()->baseUrl; ?>/static/js/jtodo.js"></script>
 <?php
 /* @var $this DespachosController */
@@ -202,55 +221,60 @@
     <?php echo $form->errorSummary($model); ?>
 
     <?php echo $form->textFieldControlGroup($model,'fecha',array('id'=>'fecha')); ?>
-    <div class="form" ng-controller="jCtrl">
-        <table class="table table-bordered">
-            <tr bgcolor="#A03233">
-                <td width="16%" >
-                    <div class="form-group">
-                        <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                    </div>
-                </td>
-                <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Despachos Pedido</strong></FONT></td>
-            </tr>
-            <tr>
-                <td colspan="2"> 
-                    <table class="table table-bordered" id ="solicitud">
-                    <thead> 
-                        <tr bgcolor="#A03233">
-                            <td></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cliente</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tanda</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad Total</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Observaciones</strong></FONT></td>
-                        </tr>   
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="solicitud in solicitudes">
-                            <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
-                            <td> 
-                                <div align="center">
-                                    <input type="text" name="Despachos[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.cliente ng-change="setCliente()">                                       
-                                </div>
-                            </td>
-                            <td>
-                                <div align="center">
-                                    <input type="text" name="Despachos[detalle][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  id="producto_{{solicitud.fila}}" fila={{solicitud.fila}} ng-model=solicitud.producto ng-change="setProducto()">                                       
-                                </div>
-                            </td>
-                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}} id="lote_{{solicitud.fila}}"  ng-model=solicitud.lote ng-change="setCantidad(solicitud.fila)" ></div></td>
-                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad_total]" class="cantidad_total" fila={{solicitud.fila}} id="cantidad_total_{{solicitud.fila}}" readonly="true"  ng-model=solicitud.cantidad_total></div></td>
-                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}} id="cantidad_{{solicitud.fila}}"   ng-model=solicitud.cantidad></div></td>
-                            <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][observaciones]" class="observaciones" fila={{solicitud.fila}}   ng-model=solicitud.observaciones></div></td>
-                        </tr>   
-                    </tbody>
-                    </table>
-                </td>
-            </tr>
-            
-        </table> 
+<div class="row  pic-container">
+    <div class="pic-row">
+        <div class="form" ng-controller="jCtrl">
+            <table class="table table-bordered">
+                <tr bgcolor="#A03233">
+                    <td width="16%" >
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                        </div>
+                    </td>
+                    <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Despachos Pedido</strong></FONT></td>
+                </tr>
+                <tr>
+                    <td colspan="2"> 
+                        <table class="table table-bordered" id ="solicitud">
+                        <thead> 
+                            <tr bgcolor="#A03233">
+                                <td></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cliente&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tanda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Observaciones&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                            </tr>   
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="solicitud in solicitudes">
+                                <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
+                                <td> 
+                                    <div align="center">
+                                        <input type="text" name="Despachos[detalle][{{solicitud.fila}}][cliente]" class="cliente form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.cliente ng-change="setCliente()">                                       
+                                    </div>
+                                </td>
+                                <td>
+                                    <div align="center">
+                                        <input type="text" name="Despachos[detalle][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  id="producto_{{solicitud.fila}}" fila={{solicitud.fila}} ng-model=solicitud.producto ng-change="setProducto()">                                       
+                                    </div>
+                                </td>
+                                <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}} id="lote_{{solicitud.fila}}"  ng-model=solicitud.lote ng-change="setCantidad(solicitud.fila)" ></div></td>
+                                <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad_total]" class="cantidad_total" fila={{solicitud.fila}} id="cantidad_total_{{solicitud.fila}}" readonly="true"  ng-model=solicitud.cantidad_total></div></td>
+                                <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}} id="cantidad_{{solicitud.fila}}"   ng-model=solicitud.cantidad></div></td>
+                                <td><div align="center"><input type="text" name="Despachos[detalle][{{solicitud.fila}}][observaciones]" class="observaciones" fila={{solicitud.fila}}   ng-model=solicitud.observaciones></div></td>
+                            </tr>   
+                        </tbody>
+                        </table>
+                    </td>
+                </tr>
+                
+            </table> 
+        </div>
     </div>
+</div>
+
     <?php echo $form->textFieldControlGroup($model,'responsable',array('maxlength'=>150)); ?>
     <?php echo $form->textFieldControlGroup($model,'verificado',array('maxlength'=>150)); ?>
 

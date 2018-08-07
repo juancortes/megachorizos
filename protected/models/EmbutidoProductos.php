@@ -15,6 +15,9 @@
  * @property integer $longitud
  * @property string $valor_real
  * @property string $diferencia
+ * @property integer $lote_producto
+ * @property string $cantidad_tipo
+ * @property string $lote_tipo
  *
  * The followings are the available model relations:
  * @property Producto $producto
@@ -38,9 +41,9 @@ class EmbutidoProductos extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('fecha, proceso_embutido_id, producto_id, cantidad,  estimado', 'required'),
-			array('proceso_embutido_id,  tipo,  longitud', 'numerical', 'integerOnly'=>true),
-			array('producto_id, estimado, valor_real, diferencia', 'length', 'max'=>10),
+			array('fecha, proceso_embutido_id, producto_id, cantidad,  estimado, cantidad_tipo, lote_tipo', 'required'),
+			array('proceso_embutido_id,  tipo,  longitud, tipo, lote_producto', 'numerical', 'integerOnly'=>true),
+			array('producto_id, estimado, valor_real, diferencia, cantidad_tipo, lote_tipo', 'length', 'max'=>10),
 			array('cantidad, peso', 'numerical'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

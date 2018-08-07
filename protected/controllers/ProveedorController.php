@@ -28,7 +28,7 @@ class ProveedorController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'create', 'index', 'view', 'delete', 'update','reporteProveedor'),
+                'actions' => array('admin', 'create', 'index', 'view', 'delete', 'update','reporteProveedor','reporteProveedorCargado'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
             ),
 			array('deny',  // deny all users
@@ -170,6 +170,27 @@ class ProveedorController extends Controller
 	}
 
 	public function actionReporteProveedor()
+	{
+		$model = new Proveedor;
+		if(isset($_POST['Proveedor']))
+		{
+			$sql = "SELECT * FROM proveedor_insumo WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin AND proveedor_id =:proveedor";
+			$model1 = ProveedorInsumo::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final'],':proveedor'=>$_POST['Proveedor']['nom_proveedor']));
+			$this->render('reporteProveedor',array(
+				'model'=>$model,
+				'model1'=>$model1,
+				'inicio'=>1
+			)); 
+			exit;
+		}
+
+		$this->render('reporteProveedor',array(
+			'model'=>$model,
+			'inicio'=>0
+		)); 
+	}
+
+	public function actionReporteProveedorCargado()
 	{
 		$model = new Proveedor;
 		if(isset($_POST['Proveedor']))

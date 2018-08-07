@@ -52,11 +52,11 @@ class ProcesoEmbutidoController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('Estimado','eliminarDetalle','index','view','admin','create','update','delete','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
+				'actions'=>array('getLoteTipo','getLote','Estimado','eliminarDetalle','index','view','admin','create','update','delete','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
 			),
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('Estimado','index','view','admin','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
+				'actions'=>array('getLoteTipo','getLote','Estimado','index','view','admin','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
                 'expression' => 'Yii::app()->user->checkAccess("Embutidor1")',
 			),
 			array('deny',  // deny all users
@@ -106,10 +106,13 @@ class ProcesoEmbutidoController extends Controller
 							$modelEmbutidoProductos                      = new EmbutidoProductos;
 							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
 							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
-							$modelEmbutidoProductos->cantidad            = $value['cantidad'];
 							$modelEmbutidoProductos->producto_id         = $value['producto'];
+							$modelEmbutidoProductos->lote_producto       = $value['lote_producto'];
+							$modelEmbutidoProductos->cantidad            = $value['cantidad'];
 							$modelEmbutidoProductos->estimado            = $value['estimado'];
 							$modelEmbutidoProductos->tipo                = $value['tipo'];
+							$modelEmbutidoProductos->lote_tipo           = $value['lote_tipo'];
+							$modelEmbutidoProductos->cantidad_tipo       = $value['cantidad_tipo'];
 							$modelEmbutidoProductos->peso                = $value['peso'];
 							$modelEmbutidoProductos->longitud            = $value['longitud'];
 							$modelEmbutidoProductos->valor_real          = $value['real'];
@@ -199,32 +202,39 @@ class ProcesoEmbutidoController extends Controller
 						$modelEmbutidoProductos = EmbutidoProductos::model()->findByAttributes(array('proceso_embutido_id' => $model->id,'producto_id'=>$producto['producto']));
 						if(isset($modelEmbutidoProductos))
 						{
+							$modelEmbutidoProductos                      = new EmbutidoProductos;
 							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
 							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
-							$modelEmbutidoProductos->cantidad            = $producto['cantidad'];
-							$modelEmbutidoProductos->producto_id         = $producto['producto'];
-							$modelEmbutidoProductos->estimado            = $producto['estimado'];
-							$modelEmbutidoProductos->tipo                = $producto['tipo'];
-							$modelEmbutidoProductos->peso                = $producto['peso'];
-							$modelEmbutidoProductos->longitud            = $producto['longitud'];
-							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
-							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
+							$modelEmbutidoProductos->producto_id         = $value['producto'];
+							$modelEmbutidoProductos->lote_producto       = $value['lote_producto'];
+							$modelEmbutidoProductos->cantidad            = $value['cantidad'];
+							$modelEmbutidoProductos->estimado            = $value['estimado'];
+							$modelEmbutidoProductos->tipo                = $value['tipo'];
+							$modelEmbutidoProductos->lote_tipo           = $value['lote_tipo'];
+							$modelEmbutidoProductos->cantidad_tipo       = $value['cantidad_tipo'];
+							$modelEmbutidoProductos->peso                = $value['peso'];
+							$modelEmbutidoProductos->longitud            = $value['longitud'];
+							$modelEmbutidoProductos->valor_real          = $value['real'];
+							$modelEmbutidoProductos->diferencia          = $value['diferencia'];
 							$modelEmbutidoProductos->save();
 							$this->redirect(array('view','id'=>$model->id));
 						}
 						else
 						{
-							$modelEmbutidoProductos 					 = new EmbutidoProductos();
+							$modelEmbutidoProductos                      = new EmbutidoProductos;
 							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
 							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
-							$modelEmbutidoProductos->cantidad            = $producto['cantidad'];
-							$modelEmbutidoProductos->producto_id         = $producto['producto'];
-							$modelEmbutidoProductos->estimado            = $producto['estimado'];
-							$modelEmbutidoProductos->tipo                = $producto['tipo'];
-							$modelEmbutidoProductos->peso                = $producto['peso'];
-							$modelEmbutidoProductos->longitud            = $producto['longitud'];
-							$modelEmbutidoProductos->valor_real          = $producto['valor_real'];
-							$modelEmbutidoProductos->diferencia          = $producto['diferencia'];
+							$modelEmbutidoProductos->producto_id         = $value['producto'];
+							$modelEmbutidoProductos->lote_producto       = $value['lote_producto'];
+							$modelEmbutidoProductos->cantidad            = $value['cantidad'];
+							$modelEmbutidoProductos->estimado            = $value['estimado'];
+							$modelEmbutidoProductos->tipo                = $value['tipo'];
+							$modelEmbutidoProductos->lote_tipo           = $value['lote_tipo'];
+							$modelEmbutidoProductos->cantidad_tipo       = $value['cantidad_tipo'];
+							$modelEmbutidoProductos->peso                = $value['peso'];
+							$modelEmbutidoProductos->longitud            = $value['longitud'];
+							$modelEmbutidoProductos->valor_real          = $value['real'];
+							$modelEmbutidoProductos->diferencia          = $value['diferencia'];
 							$modelEmbutidoProductos->save();
 							$this->redirect(array('view','id'=>$model->id));
 						}
@@ -268,6 +278,60 @@ class ProcesoEmbutidoController extends Controller
 			$envio = ['estimado'=>round($estimado,2),'peso'=>$model->peso,'longitud'=>round($model->longitud,2)];
 			echo json_encode($envio);
 		}
+	}
+
+	public function actionGetLote()
+	{
+		$producto = $_POST['producto'];
+		$fecha    = $_POST['fecha'];
+		$criteria = new CDbCriteria(array('order'=>'id ASC'));
+		$sql   = "SELECT *
+				  FROM ctrl_producciones_trazabilidad 
+				  WHERE id NOT IN (
+				  	SELECT tanda
+				    FROM proceso_embutido 
+				  ) 
+				  AND fecha =:fecha
+				  AND producto =:producto 
+				  ORDER BY id ASC";
+
+		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':producto'=>$producto,':fecha'=>$fecha));
+		
+		if(isset($datos))
+		{
+			$arreglo = [];
+			foreach ($datos as $key => $value) {
+				$n = $key +1;
+				$arreglo[$key]['id']    = $value['id'];
+				$arreglo[$key]['nombre'] = $value['fecha']." ".(int)$n." ".$value['producto0']->nombre;
+			}
+			// echo json_encode($arreglo);
+			echo CJSON::encode(array(
+			'deptos'=>$arreglo,
+			)
+		);
+			// $model = new ProcesoEmbutido;
+			// $this->renderPartial('_getTanda', array('ordenProduccion'=>$datos,'model'=>$model));
+		}
+		
+	}
+
+	public function actionGetLoteTipo()
+	{
+		$tipo = $_POST['tipo'];
+		$criteria = new CDbCriteria(array('order'=>'id ASC'));
+		$sql      = 'SELECT rmnc.id, concat(lote_interno," - ",fec_ingreso," - ", round(peso_total,2)) AS lote_interno
+					FROM recepcion_materia_prima_no_carnica rmnc
+					INNER JOIN insumo i ON i.id = rmnc.materia_prima_insumo
+			       	WHERE materia_prima_insumo = :insumo
+			       		AND peso_total > 0';
+
+		$lote = RecepcionMateriaPrimaNoCarnica::model()->findAllBySql($sql, array(':insumo' => $tipo));
+		echo CJSON::encode(array(
+				'deptos' => $lote,
+			)
+		);
+		
 	}
 
 	public function actionGetTanda()

@@ -142,6 +142,19 @@ class RecepcionMateriaPrimaCarnicaController extends Controller
 					$provInsumo->save();
 				}
 
+				$provInsumo                = new ProveedorInsumoHistorico;
+				$provInsumo->proveedor_id  = $model->proveedor;
+				$provInsumo->insumo_id     = $model->materia_prima_insumo;
+				$provInsumo->cantidad      = $model->peso;
+				$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
+				$provInsumo->accion        = 'I';
+				if(!$provInsumo->save())
+				{
+					echo "<pre>";
+					print_r($provInsumo->getErrors());
+					exit;
+				}
+
 				$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
 				$insumo->cantidad += $model->peso;
 				if($insumo->save())
@@ -204,6 +217,18 @@ class RecepcionMateriaPrimaCarnicaController extends Controller
 							$proveedorInsumo->cantidad -= $pesoAnterior;
 							$proveedorInsumo->save(); 
 
+							$provInsumo                = new ProveedorInsumoHistorico;
+							$provInsumo->proveedor_id  = $model->proveedor;
+							$provInsumo->insumo_id     = $model->materia_prima_insumo;
+							$provInsumo->cantidad      = -$model->peso;
+							$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
+							$provInsumo->accion        = 'U';
+							if(!$provInsumo->save())
+							{
+								echo "<pre>";
+								print_r($provInsumo->getErrors());
+								exit;
+							}
 
 							//adicionar el nuevo insumo 
 							$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
@@ -213,6 +238,20 @@ class RecepcionMateriaPrimaCarnicaController extends Controller
 							$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$model->proveedor,'insumo_id'=>$model->materia_prima_insumo));
 							$proveedorInsumo->cantidad += $pesoAnterior;
 							$proveedorInsumo->save();
+
+							$provInsumo                = new ProveedorInsumoHistorico;
+							$provInsumo->proveedor_id  = $model->proveedor;
+							$provInsumo->insumo_id     = $model->materia_prima_insumo;
+							$provInsumo->cantidad      = $model->peso;
+							$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
+							$provInsumo->accion        = 'I';
+							if(!$provInsumo->save())
+							{
+								echo "<pre>";
+								print_r($provInsumo->getErrors());
+								exit;
+							}
+
 
 						}
 					}
@@ -227,6 +266,19 @@ class RecepcionMateriaPrimaCarnicaController extends Controller
 						$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$model->proveedor,'insumo_id'=>$model->materia_prima_insumo));
 						$proveedorInsumo->cantidad += $dif;
 						$proveedorInsumo->save();
+
+						$provInsumo                = new ProveedorInsumoHistorico;
+						$provInsumo->proveedor_id  = $model->proveedor;
+						$provInsumo->insumo_id     = $model->materia_prima_insumo;
+						$provInsumo->cantidad      = $model->peso;
+						$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
+						$provInsumo->accion        = 'U';
+						if(!$provInsumo->save())
+						{
+							echo "<pre>";
+							print_r($provInsumo->getErrors());
+							exit;
+						}
 
 					}
 					

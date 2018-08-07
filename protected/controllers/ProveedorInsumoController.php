@@ -62,7 +62,12 @@ class ProveedorInsumoController extends Controller
 		{
 			$model->attributes=$_POST['ProveedorInsumo'];
 			if($model->save())
+			{
+				$historico = new ProveedorInsumoHistorico;
+				$historico->attributes=$_POST['ProveedorInsumo'];
+				$historico->save();
 				$this->redirect(array('view','id'=>$model->id));
+			}
 		}
 
 		$this->render('create',array(

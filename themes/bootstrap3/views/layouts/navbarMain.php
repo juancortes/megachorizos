@@ -337,9 +337,15 @@ $this->widget('bootstrap.widgets.BsNavbar', array(
 								)
 							),
 						array(
-							'label' => 'Proveedor',
+							'label' => 'Proveedor Disponible',
 							'url' => array(
 								'/proveedor/reporteProveedor'
+								)
+							),
+						array(
+							'label' => 'Proveedor Cargado',
+							'url' => array(
+								'/proveedor/reporteProveedorCargado'
 								)
 							),
 						)
