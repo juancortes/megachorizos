@@ -196,12 +196,19 @@ class ProveedorController extends Controller
 		if(isset($_POST['Proveedor']))
 		{
 			
-			print_r($_POST);
+			$sql = "SELECT * FROM proveedor_insumo_historico WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin AND proveedor_id =:proveedor";
+			$model1 = ProveedorInsumoHistorico::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final'],':proveedor'=>$_POST['Proveedor']['nom_proveedor']));
+			$this->render('reporteProveedorCargado',array(
+				'model'=>$model,
+				'model1'=>$model1,
+				'inicio'=>1
+			)); 
 			exit;
 		}
 
-		$this->render('reporteProveedor',array(
-			'model'=>$model
+		$this->render('reporteProveedorCargado',array(
+			'model'=>$model,
+			'inicio'=>0
 		)); 
 	}
 }

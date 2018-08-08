@@ -49,6 +49,7 @@ class RecepcionVegetales extends CActiveRecord
 			array('num_lote_externo', 'length', 'max'=>100),
 			array('caract_fisicas_color, caract_fisicas_olor, caract_fisicas_textura, caract_fisicas_limpieza', 'length', 'max'=>1),
 			array('observaciones', 'length', 'max'=>255),
+			array('fec_vencimiento, fec_ingreso', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, fecha_lote, lote_interno, fec_vencimiento, proveedor_id, materia_prima_insumo, peso_total, unidades, num_lote_externo, caract_fisicas_color, caract_fisicas_olor, caract_fisicas_textura, caract_fisicas_limpieza, recibido, observaciones', 'safe', 'on'=>'search'),

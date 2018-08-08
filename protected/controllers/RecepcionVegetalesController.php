@@ -92,11 +92,12 @@ class RecepcionVegetalesController extends Controller
 				}
 
 				$provInsumo                = new ProveedorInsumoHistorico;
-				$provInsumo->proveedor_id  = $model->proveedor;
+				$provInsumo->proveedor_id  = $model->proveedor_id;
 				$provInsumo->insumo_id     = $model->materia_prima_insumo;
 				$provInsumo->cantidad      = $model->peso_total;
 				$provInsumo->fecha_ingreso = date('Y-m-d H:i:s');
 				$provInsumo->accion        = 'I';
+
 				if(!$provInsumo->save())
 				{
 					echo "<pre>";

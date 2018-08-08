@@ -173,6 +173,7 @@
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
+                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Bolsas</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Paquete</strong></FONT></td>
                             <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Averias</strong></FONT></td>
                         </tr>   
@@ -192,6 +193,15 @@
                             </td>
                             <td><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}}  ng-model=solicitud.cantidad></div></td>
                             <td><div align="center"><select name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][unidad]" class="unidad" fila={{solicitud.fila}}  ng-model=solicitud.unidad>
+                                    <option value="x5">x5</option>
+                                    <option value="x10">x10</option>
+                                    <option value="x20">x20</option>
+                                    <option value="x30">x30</option>
+                                    <option value="x50">x50</option>
+                                    <option value="unidades">Unidades</option>
+                                </select>
+                                </div></td>
+                                <td><div align="center"><select name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][unidad]" class="unidad" fila={{solicitud.fila}}  ng-model=solicitud.unidad>
                                     <option value="x5">x5</option>
                                     <option value="x10">x10</option>
                                     <option value="x20">x20</option>
