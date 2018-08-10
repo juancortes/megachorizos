@@ -220,6 +220,32 @@
         </div>
     </div>
 
+    <button class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#myModalEncuestador">
+      Ingresar Tipo
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="myModalEncuestador" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
+            <h4 class="modal-title" id="myModalLabel"><center>FORMULACION CARNICA</center></h4>
+          </div>
+            <div class="modal-body">
+                    <?php echo $form->dropDownListControlGroup($model,'tipo',['267'=>'Colageno','270'=>'Tripa'],
+                        array('id'=>'tipo',                         
+                            'prompt' => 'Seleccione un tipo...' )); ?>
+                    <?php echo $form->textFieldControlGroup($model,'cantidadTipo',array('id'=>'cantidad')); ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="boton_subir" data-dismiss="modal">Cerrar</button> <br>
+                <button type="button" class="btn btn-primary" onclick="ingresarFormalaCarnica();">Asignar</button>
+                
+            </div>
+        </div>
+      </div>
+    </div>
+
     <?php
         }
         else

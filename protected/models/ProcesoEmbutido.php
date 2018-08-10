@@ -24,6 +24,10 @@ class ProcesoEmbutido extends CActiveRecord
 	public $producto;
 	public $producto1;
 	public $estimado;
+	public $tipo;
+	public $loteTipo;
+	public $cantidadTipo;
+	public $realTipo;
 
 	/**
 	 * @return string the associated database table name
@@ -78,6 +82,7 @@ class ProcesoEmbutido extends CActiveRecord
 			'cantidad_entrante' => 'Cantidad Entrante',
 			'averias_totales'   => 'Averias Totales',
 			'observaciones'     => 'Observaciones',
+			'cantidadTipo'     => 'Cantidad',
 		);
 	}
 

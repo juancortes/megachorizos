@@ -17,6 +17,7 @@
 				<table>
 					<tr>
 						<td>Insumo</td>
+						<td>Fecha Ingreso</td>
 						<td>Cantidad (Kg)</td>
 						<td>Proveedor</td>
 					</tr>
@@ -24,9 +25,11 @@
 					$detalles = DetalleCtrlProducciones::model()->findAllByAttributes(array('ctrl_producciones_id'=>$value->id));
 					foreach ($detalles as $k => $val) 
 					{
+						$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id'=>$val->insumo_id,'proveedor_id'=>$val->proveedor_id));
 						$insumo = Insumo::model()->findByPk($val->insumo_id);
 						echo "<tr>";
 							echo "<td>".$insumo->materia_prima."</td>";
+							echo "<td>".$provInsumo->fecha_ingreso."</td>";
 							echo "<td>".$val->cantidad."</td>";
 							$proveedor = Proveedor::model()->findByPk($val->proveedor_id);
 							if(isset($proveedor))

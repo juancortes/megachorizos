@@ -18,6 +18,7 @@
     <?php echo $form->errorSummary($model); ?>
 
     <?php echo $form->dropDownListControlGroup($model,'nom_proveedor',Proveedor::model()->getproveedor(),array('empty'=>'Seleccione una opcion','id'=>'tiṕo')); ?>
+    <?php echo $form->dropDownListControlGroup($model,'insumo',Insumo::model()->getInsumos(),array('empty'=>'Seleccione una opcion','id'=>'tiṕo')); ?>
     <?php echo $form->textFieldControlGroup($model,'fecha_inicial',array('id'=>'fecha_inicial')); ?>
     <?php echo $form->textFieldControlGroup($model,'fecha_final',array('id'=>'fecha_final')); ?>
     <?php if($inicio == 1) {?>

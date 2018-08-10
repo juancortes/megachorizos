@@ -675,10 +675,10 @@ print_r(Yii::app()->user->insumos);
 		{
 			Yii::app()->user->setState('arreglo', array());
 			$sesion = 0;
-			$cant   = count(Yii::app()->user->nocarnico);
+			/*$cant   = count(Yii::app()->user->nocarnico);
 			$cant1  = count(Yii::app()->user->carnico);
 			$sesion += $cant;
-			$sesion += $cant1;
+			$sesion += $cant1;*/
 
 			$model                     = new CtrlProduccionesTrazabilidad;
 			$dlleCtrlProducciones      = new DetalleCtrlProducciones;

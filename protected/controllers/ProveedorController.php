@@ -193,16 +193,44 @@ class ProveedorController extends Controller
 	public function actionReporteProveedorCargado()
 	{
 		$model = new Proveedor;
-		if(isset($_POST['Proveedor']))
+		if(isset($_POST['Proveedor'])  )
 		{
-			
-			$sql = "SELECT * FROM proveedor_insumo_historico WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin AND proveedor_id =:proveedor";
-			$model1 = ProveedorInsumoHistorico::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final'],':proveedor'=>$_POST['Proveedor']['nom_proveedor']));
-			$this->render('reporteProveedorCargado',array(
-				'model'=>$model,
-				'model1'=>$model1,
-				'inicio'=>1
-			)); 
+			if($_POST['Proveedor']['nom_proveedor'] != "")
+			{
+				$sql = "SELECT * FROM proveedor_insumo_historico WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin AND proveedor_id =:proveedor";
+				$model1 = ProveedorInsumoHistorico::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final'],':proveedor'=>$_POST['Proveedor']['nom_proveedor']));
+				$this->render('reporteProveedorCargado',array(
+					'model'=>$model,
+					'model1'=>$model1,
+					'inicio'=>1
+				)); 
+			}
+			else if($_POST['Proveedor']['insumo'] != "")
+			{
+				$sql = "SELECT * 
+						FROM proveedor_insumo_historico 
+						WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin 
+							AND insumo_id =:insumo";
+				$model1 = ProveedorInsumoHistorico::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final'],':insumo'=>$_POST['Proveedor']['insumo']));
+				$this->render('reporteProveedorCargado',array(
+					'model'=>$model,
+					'model1'=>$model1,
+					'inicio'=>1
+				)); 
+			}
+			else
+			{
+				$sql = "SELECT * 
+						FROM proveedor_insumo_historico 
+						WHERE date(fecha_ingreso) BETWEEN  :fecha_inicio AND :fecha_fin 
+							";
+				$model1 = ProveedorInsumoHistorico::model()->findAllBySql($sql,array(':fecha_inicio'=>$_POST['Proveedor']['fecha_inicial'],':fecha_fin'=>$_POST['Proveedor']['fecha_final']));
+				$this->render('reporteProveedorCargado',array(
+					'model'=>$model,
+					'model1'=>$model1,
+					'inicio'=>1
+				)); 
+			}
 			exit;
 		}
 

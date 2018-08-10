@@ -26,6 +26,7 @@
 class Proveedor extends CActiveRecord
 {
 	public $nombre;
+	public $insumo;
 	public $fecha_inicial;
 	public $fecha_final;
 	/**
