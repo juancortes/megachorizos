@@ -162,14 +162,15 @@
             minimumInputLength: 0,
             width:'resolve',
             ajax: {  
-                url: "../inventarioEmpaqueVacio/getLote",
+                url: "../despachos/getLote",
                 dataType: 'json',
                 type: 'POST',
                 data: function (term, page) {
                     return {
                         q: term, 
                         page_limit: 10,
-                        producto: getIdProducto($(this))
+                        producto: getIdProducto($(this)),
+                        fecha: $("#fecha").val()
                     };
                 },
                 results: function (data, page) {            

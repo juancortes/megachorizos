@@ -338,14 +338,16 @@ class ProcesoEmbutidoController extends Controller
 	{
 		$fecha    = $_POST['fecha'];
 		$criteria = new CDbCriteria(array('order'=>'id ASC'));
-		$sql   = "SELECT *
-				  FROM ctrl_producciones_trazabilidad 
-				  WHERE id NOT IN (
+		$sql   = "SELECT cpt.*
+				  FROM ctrl_producciones_trazabilidad cpt
+				  INNER JOIN producto p ON p.id = cpt.producto
+				  WHERE cpt.id NOT IN (
 				  	SELECT tanda
 				    FROM proceso_embutido 
 				  ) 
-				  AND fecha =:fecha 
-				  ORDER BY id ASC";
+				  AND cpt.fecha =:fecha 
+				  AND p.nombre not like '%CRUDO%'
+				  ORDER BY cpt.id ASC";
 
 		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':fecha'=>$fecha));
 		

@@ -103,7 +103,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 
 		
 		if($validar === false)
-			echo json_encode(['success'=>false,'mensaje'=>'No ha ingresado todos los datos de la formula!!!']);
+			echo json_encode(['success'=>false,'mensaje'=>'No ha ingresado la totalidad de los datos de la formula!!!']);
 		else
 		{
 			$datos2 = [];
@@ -128,16 +128,62 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			else
 				echo json_encode(['success'=>false,'mensaje'=>'Error en la formulacion!!!']);
 
+			$errores = [];
+
 			foreach ($formulacion as $key => $value) {
+				
 				if(round($cantidad * $value->peso,2) != round($datos[$value->materia_prima]['cantidad'],2))
 				{
 					$validar = false;
-					$insumo_falta = $value->materia_prima;
+					$insumo_falta = $value->materiaPrima->materia_prima;
 					$cant_ingresada = $value->peso;
+					if($value->materiaPrima->tipo == 0) //carnico
+					{
+						$mod = RecepcionMateriaPrimaCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
+						$peso = $mod->peso;
+					}
+					else if($value->materiaPrima->tipo == 1) //no carnico
+					{
+						$mod = RecepcionMateriaPrimaNoCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
+						$peso = $mod->peso_total;
+					}
+					else 
+					{
+						$mod = RecepcionVegetales::model()->findByPk($datos[$value->materia_prima]['lote']);
+						$peso = $mod->peso_total;
+					}
+
+					
+					$lote = $mod->lote_interno;
+					$errores[$insumo_falta] = ['lote'=>$lote,'peso_lote'=>round($peso,2),'insumo'=>$insumo_falta,'cant_solicitada'=>($cantidad * $cant_ingresada),'cant_ingresada'=>round($datos[$value->materia_prima]['cantidad'],2)];
 				}
 			}
+
+
 			if($validar === false)
-				echo json_encode(['success'=>false,'mensaje'=>'cantidad solicitada de algun insumo incorrecto!!! insumo='.$insumo_falta." cant=".$cant_ingresada." cantidad=".$cantidad." cantidadfor=".$datos[$value->materia_prima]['cantidad']]);
+			{
+				$table = "cantidad solicitada de algun insumo incorrecto!!!<br>";
+				$table .= "<table border=1>";
+				$table .= "<tr>";
+				$table .= "		<td>Inusmo</td>";
+				$table .= "		<td>Cantidad Solicitada</td>";
+				$table .= "		<td>Cantidad Ingresada</td>";
+				$table .= "		<td>Lote</td>";
+				$table .= "		<td>Lote Cantidad</td>";
+				$table .= "</tr>";
+				foreach ($errores as $key => $value) {
+					$table .= "<tr>";
+					$table .= "		<td>$value[insumo]</td>";
+					$table .= "		<td>$value[cant_solicitada]</td>";
+					$table .= "		<td>$value[cant_ingresada]</td>";
+					$table .= "		<td>$value[lote]</td>";
+					$table .= "		<td>$value[peso_lote]</td>";
+					$table .= "</tr>";
+				}
+				$table .= "</table>";
+				
+				echo json_encode(['success'=>false,'mensaje'=>'cantidad solicitada de algun insumo incorrecto!!!','tabla'=>$table]);
+			}
 			else
 				echo json_encode(['success'=>true,'mensaje'=>'ok']);
 		}

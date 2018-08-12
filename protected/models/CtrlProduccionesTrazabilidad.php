@@ -31,6 +31,7 @@ class CtrlProduccionesTrazabilidad extends CActiveRecord
 	public $aproducto1;
 	public $acantidad;
 	public $detalle1;
+	public $id1;
 
 	/**
 	 * @return string the associated database table name

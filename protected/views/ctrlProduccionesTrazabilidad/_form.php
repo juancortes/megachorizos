@@ -377,7 +377,7 @@
                 {
                     obj = JSON.parse(res);
                     if(obj.success == false)
-                        alertify.alert(obj.mensaje);
+                        alertify.alert(obj.tabla);
                     else
                         form.submit()
                 });

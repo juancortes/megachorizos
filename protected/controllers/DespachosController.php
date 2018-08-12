@@ -33,11 +33,11 @@ class DespachosController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('getCantidad','admin', 'create', 'index', 'view', 'delete', 'update','getCliente','getDestino'),
+                'actions' => array('getCantidad','admin', 'create', 'index', 'view', 'delete', 'update','getCliente','getDestino','getLote'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1")',
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'create', 'index', 'view','getCliente','getDestino'),
+                'actions' => array('admin', 'create', 'index', 'view','getCliente','getDestino','getLote'),
                 'expression' => 'Yii::app()->user->checkAccess("Despachos")',
             ),
 			array('deny',  // deny all users
@@ -46,10 +46,8 @@ class DespachosController extends Controller
 		);
 	}
 
-	public function actionGetLote()
-	{
-		
-	}
+	
+	
 
 	/**
 	* Displays a particular model.
@@ -294,11 +292,12 @@ class DespachosController extends Controller
 
 	public function actionGetCantidad()
 	{
-		$postdata   = file_get_contents("php://input");
-		$request    = json_decode($postdata);
+		$postdata        = file_get_contents("php://input");
+		$request         = json_decode($postdata);
 		$ordenProduccion = $request->orden;
-		$producto_id = $request->producto_id;
+		$producto_id     = $request->producto_id;
 		$ordenProduccion = explode('-', $ordenProduccion);
+
 		$sql = "SELECT ep.valor_real 
 				FROM  proceso_embutido pe
 				INNER JOIN embutido_productos ep ON ep.proceso_embutido_id = pe.id
@@ -308,5 +307,39 @@ class DespachosController extends Controller
 		$envio = ['cantidad'=>$results['valor_real']];
 		echo json_encode($envio);
 		exit;
+	}
+
+	public function actionGetLote()
+	{
+		
+		$producto = $_POST['producto'];
+		$fecha    = $_POST['fecha'];
+		$criteria = new CDbCriteria(array('order'=>'id ASC'));
+		$sql   = "SELECT cpt.*, concat(cpt.id,'-',cpt.fecha) AS id1
+				  FROM ctrl_producciones_trazabilidad cpt
+				  INNER JOIN proceso_embutido pe ON pe.tanda = cpt.id				  
+				  WHERE 
+				   cpt.fecha =:fecha
+				  AND cpt.producto =:producto 
+				  ORDER BY cpt.id ASC";
+		$datos = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':producto'=>$producto,':fecha'=>$fecha));
+		
+		if(isset($datos))
+		{
+			$arreglo = [];
+			foreach ($datos as $key => $value) {
+				$n = $key +1;
+				$arreglo[$key]['id']    = $value['id1'];
+				$arreglo[$key]['nombre'] = $value['id1']." ".(int)$n." ".$value['producto0']->nombre;
+			}
+			// echo json_encode($arreglo);
+			echo CJSON::encode(array(
+				'deptos'=>$arreglo,
+				)
+			);
+			// $model = new ProcesoEmbutido;
+			// $this->renderPartial('_getTanda', array('ordenProduccion'=>$datos,'model'=>$model));
+		}
+	
 	}
 }
