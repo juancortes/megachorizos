@@ -93,6 +93,7 @@ class TrasladosController extends Controller {
 								$materiaPrima = RecepcionVegetales::model()->findByPk($value['lote']);
 								$materiaPrima->peso_total -= $value['cantidad'];
 							}
+							$materiaPrima->devolucion_si_no = 0;
 
 							if($materiaPrima->save())
 							{

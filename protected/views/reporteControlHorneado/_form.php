@@ -136,6 +136,7 @@
         $user = User::model()->findByAttributes(array('username'=>$usuario));
         echo $form->hiddenField($model,'responsable_id',array('value'=>$user->id)); ?>
 
+    <?php echo $form->textAreaControlGroup($model,'observaciones'); ?>
     <?php echo $form->textFieldControlGroup($model,'responsable',array('value'=>$user->nombres,'readonly'=>'readonly')); ?>
 
     <?php echo BsHtml::submitButton('Enviar', array('color' => BsHtml::BUTTON_COLOR_PRIMARY)); ?>

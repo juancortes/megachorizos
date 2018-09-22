@@ -52,8 +52,12 @@ class ProcesoEmbutidoController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('getLoteTipo','getLote','Estimado','eliminarDetalle','index','view','admin','create','update','delete','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
-                'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
+				'actions'=>array('delete'),
+                'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin") || Yii::app()->user->checkAccess("Embutidor1")',
+			),
+			array('allow',  // allow all users to perform 'index' and 'view' actions
+				'actions'=>array('getLoteTipo','getLote','Estimado','eliminarDetalle','index','view','admin','create','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
+                'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin") || Yii::app()->user->checkAccess("Embutidor1")',
 			),
 			array('allow',  // allow all users to perform 'index' and 'view' actions
 				'actions'=>array('getLoteTipo','getLote','Estimado','index','view','admin','update','GetProducto','generarTablaInsumos','eliminarTablaInsumos','GetTanda','GetCantidadEntranteTanda','getEstimado'),
@@ -99,7 +103,6 @@ class ProcesoEmbutidoController extends Controller
 				{
 					$productos = $_POST['ProcesoEmbutido']['producto'];
 					$detalle = Yii::app()->user->insumos;		
-					
 					foreach ($productos as $key => $value) {
 						if($value['producto'] != "")
 						{
@@ -114,7 +117,7 @@ class ProcesoEmbutidoController extends Controller
 							$modelEmbutidoProductos->lote_tipo           = $value['lote_tipo'];
 							$modelEmbutidoProductos->cantidad_tipo       = $value['cantidad_tipo'];
 							$modelEmbutidoProductos->peso                = $value['peso'];
-							$modelEmbutidoProductos->longitud            = $value['longitud'];
+							$modelEmbutidoProductos->longitud            = $value['longitud_'];
 							$modelEmbutidoProductos->valor_real          = $value['real'];
 							$modelEmbutidoProductos->diferencia          = $value['diferencia'];
 
@@ -250,8 +253,8 @@ class ProcesoEmbutidoController extends Controller
 
 	public function actionGetEstimado()
 	{
-		$postdata   = file_get_contents("php://input");
-		$request    = json_decode($postdata);
+		$postdata = file_get_contents("php://input");
+		$request  = json_decode($postdata);
 		$producto = $request->producto;
 		$cantidad = $request->cantidad;		
 		$tipo     = $request->tipo;
@@ -282,29 +285,15 @@ class ProcesoEmbutidoController extends Controller
 
 	public function actionGetLote()
 	{
-		$producto = $_POST['producto'];
-		$fecha    = $_POST['fecha'];
-		$criteria = new CDbCriteria(array('order'=>'id ASC'));
-		$sql   = "SELECT *
-				  FROM ctrl_producciones_trazabilidad 
-				  WHERE id NOT IN (
-				  	SELECT tanda
-				    FROM proceso_embutido 
-				  ) 
-				  AND fecha =:fecha
-				  AND producto =:producto 
-				  ORDER BY id ASC";
+		$lote = $_POST['lote'];
+		
 
-		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':producto'=>$producto,':fecha'=>$fecha));
+		$datos    = CtrlProduccionesTrazabilidad::model()->findByPk($lote);
 		
 		if(isset($datos))
 		{
-			$arreglo = [];
-			foreach ($datos as $key => $value) {
-				$n = $key +1;
-				$arreglo[$key]['id']    = $value['id'];
-				$arreglo[$key]['nombre'] = $value['fecha']." ".(int)$n." ".$value['producto0']->nombre;
-			}
+			$arreglo[0]['id']     = $datos['id'];
+			$arreglo[0]['nombre'] = $datos['fecha']." ".$datos['orden_produccion']." ".$datos['producto0']->nombre;
 			// echo json_encode($arreglo);
 			echo CJSON::encode(array(
 			'deptos'=>$arreglo,
@@ -346,7 +335,6 @@ class ProcesoEmbutidoController extends Controller
 				    FROM proceso_embutido 
 				  ) 
 				  AND cpt.fecha =:fecha 
-				  AND p.nombre not like '%CRUDO%'
 				  ORDER BY cpt.id ASC";
 
 		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':fecha'=>$fecha));
@@ -357,7 +345,7 @@ class ProcesoEmbutidoController extends Controller
 			foreach ($datos as $key => $value) {
 				$n = $key +1;
 				$arreglo[$key]['id']    = $value['id'];
-				$arreglo[$key]['datos'] = $value['fecha']." ".(int)$n." ".$value['producto0']->nombre;
+				$arreglo[$key]['datos'] = $value['fecha']." ".$value['orden_produccion']." ".$value['producto0']->nombre;
 			}
 			echo json_encode($arreglo);
 			// $model = new ProcesoEmbutido;

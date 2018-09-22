@@ -2,7 +2,7 @@
 /* @var $this CtrlHorneadoController */
 /* @var $model CtrlHorneado */
 /* @var $form BSActiveForm */
-?>
+?> 
 <style type="text/css">
     #div-con{
         float:right;

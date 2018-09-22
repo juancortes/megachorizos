@@ -5,6 +5,22 @@
 /* @var $form BSActiveForm */
 ?>
 <style>
+    .pic-container {
+      width: 1350px;
+      margin: 0 auto;
+      white-space: nowrap;
+    }
+
+    .pic-row {
+      /* As wide as it needs to be */
+      width: 1300px;
+      overflow: auto;
+    }
+
+    .pic-row a {
+      clear: left;
+      display: block;
+    }
     .typeahead { border: 2px solid #FFF;
             border-radius: 4px;
             padding: 8px 12px;
@@ -98,17 +114,14 @@
             {
                 obj = JSON.parse(res);
                 $("#peso_"+key).val(0);
-                $("#longitud_"+key).val(0);
                 $("#estimado_"+key).val(0);
 
                 $("#peso_"+key).val(obj.peso);
-                $("#longitud_"+key).val(obj.longitud);
                 $("#estimado_"+key).val(obj.estimado);
             }
             else
             {
                 $("#peso_"+key).val(0);
-                $("#longitud_"+key).val(0);
                 $("#estimado_"+key).val(0);
             }
         });
@@ -156,95 +169,77 @@
         if($model->isNewRecord)
         {
     ?>
-    <div id="productos" ng-app='appProductos' ng-controller="ProductosController">
-        <div class="form" >
-            <table class="table table-bordered">
-                <tr bgcolor="#A03233">
-                    <td width="16%" >
-                        <div class="form-group">
-                            <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                        </div>
-                    </td>
-                    <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Productos</strong></FONT></td>
-                </tr>
-                <tr>
-                    <td colspan="2"> 
-                        <table class="table table-bordered" id ="solicitud">
-                        <thead> 
-                            <tr bgcolor="#A03233">
-                                <td></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Producto</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Kg)</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tipo</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Tipo</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Mts)</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Peso</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Longitud</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Estimado</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Real</strong></FONT></td>
-                                <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Diferencia</strong></FONT></td>
-                            </tr>   
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="solicitud in solicitudes">
-                                <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
-                                <td>
-                                    <div align="center">
-                                        <input type="text" id="producto_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto >
-                                    </div>
-                                </td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_producto]"          class="lote_producto" fila={{solicitud.fila}} id="lote_producto_{{solicitud.fila}}"  ng-model=solicitud.lote_producto ng-change="setCantidad(solicitud.fila)" ></div></td>
-                                <td><div align="center"><input type="text" id="cantidad_{{solicitud.fila}}" ng-keyup = "sumarCantidadEntrante(solicitud.fila)" name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad]" class="cantidad" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
-                                <td><div align="center">
-                                        <select id="tipo_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][tipo]" class="tipo form-control select2-select" style="width:90%" fila={{solicitud.fila}}  ng-model=solicitud.tipo ng-change="setTipo(solicitud.fila)">
-                                            <option value="267">Colageno</option>
-                                            <option value="270">Tripa</option>
-                                        </select>
-                                    </div>
-                                </td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_tipo]"          class="lote_tipo" fila={{solicitud.fila}} id="lote_tipo_{{solicitud.fila}}"  ng-model=solicitud.lote_tipo ></div></td>
-                                <td><div align="center"><input type="text" id="cantidad_tipo_{{solicitud.fila}}"  name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad_tipo]" class="cantidad_tipo" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad_tipo></div></td>
-                                <td><div align="center"><div align="center"><input type="text" id="peso_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][peso]" class="peso" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.peso ></div></div></td>
-                                <td><div align="center"><input type="text" id="longitud_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][longitud]"   class="longitud"  style="width:90%"    fila={{solicitud.fila}}   ng-model=solicitud.longitud ></div></td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][estimado]"   class="estimado"    style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.estimado id="estimado_{{solicitud.fila}}"></div></td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][real]"       class="real"        style="width:90%"         id="peso_real_{{solicitud.fila}}" fila={{solicitud.fila}}   ng-model=solicitud.real></div></td>
-                                <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][diferencia]" class="diferencia"  style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.diferencia></div></td>
-                            </tr>   
-                        </tbody>
-                        </table>
-                    </td>
-                </tr>
-                
-            </table> 
+
+    <div class="row  pic-container" >
+        <div class="pic-row">
+            <div id="productos" ng-app='appProductos' ng-controller="ProductosController">
+                <div class="form" >
+                    <table class="table table-bordered">
+                        <tr bgcolor="#A03233">
+                            <td width="16%" >
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                                </div>
+                            </td>
+                            <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Productos</strong></FONT></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"> 
+                                <table class="table table-bordered" id ="solicitud">
+                                <thead> 
+                                    <tr bgcolor="#A03233">
+                                        <td></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Producto</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Kg)</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Tipo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Tipo</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad (Mts)</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Peso</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Longitud</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Estimado</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Real</strong></FONT></td>
+                                        <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Diferencia</strong></FONT></td>
+                                    </tr>   
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="solicitud in solicitudes">
+                                        <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
+                                        <td>
+                                            <div align="center">
+                                                <input type="text" id="producto_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto >
+                                            </div>
+                                        </td>
+                                        <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_producto]"          class="lote_producto" fila={{solicitud.fila}} id="lote_producto_{{solicitud.fila}}"  ng-model=solicitud.lote_producto ng-change="setCantidad(solicitud.fila)" ></div></td>
+                                        <td><div align="center"><input type="text" id="cantidad_{{solicitud.fila}}" ng-keyup = "sumarCantidadEntrante(solicitud.fila)" name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad]" class="cantidad" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad></div></td>
+                                        <td><div align="center">
+                                                <select id="tipo_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][tipo]" class="tipo form-control select2-select" style="width:90%" fila={{solicitud.fila}}  ng-model=solicitud.tipo ng-change="setTipo(solicitud.fila)">
+                                                    <option value="267">Colageno</option>
+                                                    <option value="270">Tripa</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][lote_tipo]"          class="lote_tipo" fila={{solicitud.fila}} id="lote_tipo_{{solicitud.fila}}"  ng-model=solicitud.lote_tipo ></div></td>
+                                        <td><div align="center"><input type="text" id="cantidad_tipo_{{solicitud.fila}}"  name="ProcesoEmbutido[producto][{{solicitud.fila}}][cantidad_tipo]" class="cantidad_tipo" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.cantidad_tipo></div></td>
+                                        <td><div align="center"><div align="center"><input type="text" id="peso_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][peso]" class="peso" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.peso ></div></div></td>
+                                        <td><div align="center"><input type="text" id="longitud_{{solicitud.fila}}"  name="ProcesoEmbutido[producto][{{solicitud.fila}}][longitud_]" class="longitud_" style="width:90%" fila={{solicitud.fila}}   ng-model=solicitud.longitud_></div></td>
+                                        <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][estimado]"   class="estimado"    style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.estimado id="estimado_{{solicitud.fila}}"></div></td>
+                                        <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][real]"       class="real"        style="width:90%"         id="peso_real_{{solicitud.fila}}" fila={{solicitud.fila}}   ng-model=solicitud.real></div></td>
+                                        <td><div align="center"><input type="text" name="ProcesoEmbutido[producto][{{solicitud.fila}}][diferencia]" class="diferencia"  style="width:90%"         readonly = "true"         fila={{solicitud.fila}}   ng-model=solicitud.diferencia></div></td>
+                                    </tr>   
+                                </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        
+                    </table> 
+                </div>
+            </div>
         </div>
     </div>
 
-    <button class="btn btn-primary btn-lg" data-toggle="modal"  data-target="#myModalEncuestador">
-      Ingresar Tipo
-    </button>
-    <!-- Modal -->
-    <div class="modal fade" id="myModalEncuestador" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
-            <h4 class="modal-title" id="myModalLabel"><center>FORMULACION CARNICA</center></h4>
-          </div>
-            <div class="modal-body">
-                    <?php echo $form->dropDownListControlGroup($model,'tipo',['267'=>'Colageno','270'=>'Tripa'],
-                        array('id'=>'tipo',                         
-                            'prompt' => 'Seleccione un tipo...' )); ?>
-                    <?php echo $form->textFieldControlGroup($model,'cantidadTipo',array('id'=>'cantidad')); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="boton_subir" data-dismiss="modal">Cerrar</button> <br>
-                <button type="button" class="btn btn-primary" onclick="ingresarFormalaCarnica();">Asignar</button>
-                
-            </div>
-        </div>
-      </div>
-    </div>
+
+  
 
     <?php
         }
@@ -442,7 +437,7 @@
                     return {
                         q: term, 
                         page_limit: 10,
-                        producto: getIdProducto($(this)),
+                        lote: $("#tanda").val(),
                         fecha:$("#fecha").val()
                     };
                 },

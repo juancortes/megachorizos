@@ -4,6 +4,25 @@
 /* @var $model InventarioEmpaqueVacio */
 /* @var $form BSActiveForm */
 ?>
+<style type="text/css" media="screen">
+.pic-container {
+  width: 1350px;
+  margin: 0 auto;
+  white-space: nowrap;
+}
+
+.pic-row {
+  /* As wide as it needs to be */
+  width: 1288px;
+  height: 300px;
+  overflow: auto;
+}
+
+.pic-row a {
+  clear: left;
+  display: block;
+}
+</style>
 <script type="text/javascript"> 
     var i=1;
     var cantExistente = 0;
@@ -95,7 +114,7 @@
             minimumInputLength: 0,
             width:'resolve',
             ajax: {  
-                url: "getLote",
+                url: "../despachos/getLote",
                 dataType: 'json',
                 type: 'POST',
                 data: function (term, page) {
@@ -115,7 +134,65 @@
             escapeMarkup: function (m) { return m; } 
         });
 
-       
+        $(".bolsa[fila='"+fila+"']").select2({
+            placeholder: "Buscar bolsa...",
+            minimumInputLength: 0,
+            width:'resolve',
+            ajax: {  
+                url: "getBolsa",
+                dataType: 'json',
+                type: 'POST',
+                data: function (term, page) {
+                    return {
+                        q: term, 
+                        page_limit: 10,
+                    };
+                },
+                results: function (data, page) {            
+                    return {results: data.deptos};
+                }
+            },
+            formatResult: movieFormatResult2, 
+            formatSelection: movieFormatSelection2,  
+            dropdownCssClass: "bigdrop", 
+            escapeMarkup: function (m) { return m; } 
+        });       
+
+        $(".lote_bolsa[fila='"+fila+"']").select2({
+            placeholder: "Buscar lote bolsa...",
+            minimumInputLength: 0,
+            width:'resolve',
+            ajax: {  
+                url: "getLoteBolsa",
+                dataType: 'json',
+                type: 'POST',
+                data: function (term, page) {
+                    return {
+                        q: term, 
+                        page_limit: 10,
+                        bolsa: getIdBolsa($(this))
+                    };
+                },
+                results: function (data, page) {            
+                    console.log(data);
+                    return {results: data.deptos};
+                }
+            },
+            formatResult: movieFormatResult3, 
+            formatSelection: movieFormatSelection3,  
+            dropdownCssClass: "bigdrop", 
+            escapeMarkup: function (m) { return m; } 
+        });       
+    }
+
+    function getIdBolsa(element){
+        var fila=element.attr('fila');
+        var producto=$('.bolsa[fila="'+fila+'"]');
+        var valorProducto=parseInt(producto.val());
+        if(isNaN(valorProducto)){
+            valorProducto=0;
+        }
+        return valorProducto;
     }
 
     function getIdProducto(element){
@@ -140,6 +217,31 @@
         cantExistente = producto.cantidad;
         return producto.nombre;
     }
+    function movieFormatResult2(producto) {
+
+        var markup = "<table class='movie-result'><tr>";
+        markup += "<td class='movie-info'><div class='movie-title'>" + producto.materia_prima + "</div>";
+        markup += "</td></tr></table>";
+        return markup;
+    }
+
+    function movieFormatSelection2(producto) {
+        cantExistente = producto.cantidad;
+        return producto.materia_prima;
+    }
+
+    function movieFormatResult3(producto) {
+
+        var markup = "<table class='movie-result'><tr>";
+        markup += "<td class='movie-info'><div class='movie-title'>" + producto.lote_interno + "</div>";
+        markup += "</td></tr></table>";
+        return markup;
+    }
+
+    function movieFormatSelection3(producto) {
+        cantExistente = producto.cantidad;
+        return producto.lote_interno;
+    }
 </script>
 <?php $form=$this->beginWidget('bootstrap.widgets.BsActiveForm', array(
     'id'=>'inventario-empaque-vacio-form',
@@ -154,72 +256,72 @@
 
     <?php echo $form->errorSummary($model); ?>
     <?php echo $form->textFieldControlGroup($model,'fecha',array('maxlength'=>150,'class'=>'fecha','id'=>'fecha')); ?>
-    <div class="form" ng-controller="jCtrl">
-        <table class="table table-bordered">
-            <tr bgcolor="#A03233">
-                <td width="16%" >
-                    <div class="form-group">
-                        <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                    </div>
-                </td>
-                <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Inventario Empaque al Vacio</strong></FONT></td>
-            </tr>
-            <tr>
-                <td colspan="2"> 
-                    <table class="table table-bordered" id ="solicitud">
-                    <thead> 
-                        <tr bgcolor="#A03233">
-                            <td></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Bolsas</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Paquete</strong></FONT></td>
-                            <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Averias</strong></FONT></td>
-                        </tr>   
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="solicitud in solicitudes">
-                            <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
-                            <td>
-                                <div align="center">
-                                    <input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto ng-change="setProducto()">
-                                </div>
-                            </td>
-                            <td>
-                                <div align="center">
-                                    <div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}}   ng-model=solicitud.lote ng-change="setLote()"></div>
-                                </div>
-                            </td>
-                            <td><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}}  ng-model=solicitud.cantidad></div></td>
-                            <td><div align="center"><select name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][unidad]" class="unidad" fila={{solicitud.fila}}  ng-model=solicitud.unidad>
-                                    <option value="x5">x5</option>
-                                    <option value="x10">x10</option>
-                                    <option value="x20">x20</option>
-                                    <option value="x30">x30</option>
-                                    <option value="x50">x50</option>
-                                    <option value="unidades">Unidades</option>
-                                </select>
-                                </div></td>
-                                <td><div align="center"><select name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][unidad]" class="unidad" fila={{solicitud.fila}}  ng-model=solicitud.unidad>
-                                    <option value="x5">x5</option>
-                                    <option value="x10">x10</option>
-                                    <option value="x20">x20</option>
-                                    <option value="x30">x30</option>
-                                    <option value="x50">x50</option>
-                                    <option value="unidades">Unidades</option>
-                                </select>
-                                </div></td>
-                            <td><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][reproceso]" class="reproceso" fila={{solicitud.fila}}   ng-model=solicitud.reproceso></div></td>
-                        </tr>   
-                    </tbody>
-                    </table>
-                </td>
-            </tr>
-            
-        </table> 
+    <div class="row  pic-container">
+        <div class="pic-row">
+            <div class="form" ng-controller="jCtrl">
+                <table class="table table-bordered">
+                    <tr bgcolor="#A03233">
+                        <td width="16%" >
+                            <div class="form-group">
+                                <button type="button" class="btn btn-success btn-sm addRow" ng-click="addSolicitud()"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                            </div>
+                        </td>
+                        <td width="84%" align="center"><FONT FACE="arial" SIZE=5 COLOR=white><strong>Inventario Empaque al Vacio</strong></FONT></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"> 
+                            <table class="table table-bordered" id ="solicitud">
+                            <thead> 
+                                <tr bgcolor="#A03233">
+                                    <td></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Producto&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Cantidad</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Bolsas</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Lote Bolsas</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Paquete</strong></FONT></td>
+                                    <td align="center"><FONT FACE="arial" SIZE=3 COLOR=white><strong>Averias</strong></FONT></td>
+                                </tr>   
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="solicitud in solicitudes">
+                                    <td><div align="center"><button type="button" class="btn btn-danger btn-sm delRow" id="1" ng-show="solicitud.fila!=1" ng-click="delSolicitud(solicitud.fila)"><span class="glyphicon glyphicon-remove-sign"></span></button></div></td>                            
+                                    <td>
+                                        <div align="center">
+                                            <input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][producto]" class="producto form-control select2-select"  fila={{solicitud.fila}} ng-model=solicitud.producto ng-change="setProducto()">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div align="center">
+                                            <div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][lote]" class="lote" fila={{solicitud.fila}}   ng-model=solicitud.lote ng-change="setLote()"></div>
+                                        </div>
+                                    </td>
+                                    <td><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][cantidad]" class="cantidad" fila={{solicitud.fila}}  ng-model=solicitud.cantidad></div></td>
+                                    <td><div align="center"><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][bolsa]" class="bolsa" fila={{solicitud.fila}}   ng-model=solicitud.bolsa ng-change="setBolsa()"></div></div>
+                                    <td><div align="center"><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][lote_bolsa]" class="lote_bolsa" fila={{solicitud.fila}}   ng-model=solicitud.lote_bolsa ng-change="setLoteBolsa()"></div></div>
+                                    </td>
+                                    <td><div align="center">
+                                            <select name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][unidad]" class="unidad" fila={{solicitud.fila}} id=""  ng-model=solicitud.unidad>
+                                                <option value="x5">x5</option>
+                                                <option value="x10">x10</option>
+                                                <option value="x20">x20</option>
+                                                <option value="x30">x30</option>
+                                                <option value="x50">x50</option>
+                                                <option value="unidades">Unidades</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td><div align="center"><input type="text" name="InventarioEmpaqueVacio[detalle][{{solicitud.fila}}][reproceso]" class="reproceso" fila={{solicitud.fila}}   ng-model=solicitud.reproceso></div></td>
+                                </tr>   
+                            </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table> 
+            </div>
+        </div>
     </div>
-   
     <div id="btn">
         <?php echo BsHtml::submitButton('Enviar', array('color' => BsHtml::BUTTON_COLOR_PRIMARY)); ?>
     </div>

@@ -34,6 +34,7 @@ class RecepcionMateriaPrimaNoCarnica extends CActiveRecord
 	public $recibido1;
 	public $prov;
 	public $cantidad;
+	public $nombre;
 	
 	/**
 	 * @return string the associated database table name

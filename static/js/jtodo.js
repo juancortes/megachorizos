@@ -52,13 +52,13 @@ function($scope, $filter,$http)
         
 
         if(producto != undefined && producto != '' && cantidad != undefined && cantidad != ''
-            && tipo != undefined && tipo != '')
+            && tipo != undefined && tipo != ''     )
         {
             var conAjax = $http.post("getEstimado", {producto: producto, cantidad: cantidad, tipo:tipo});
             conAjax.success(function(respuesta){
-               angular.element('[id="longitud_'+fila+'"]').val(respuesta.longitud);
                angular.element('[id="peso_'+fila+'"]').val(respuesta.peso);
                angular.element('[id="estimado_'+fila+'"]').val(respuesta.estimado);
+               angular.element('[id="longitud_'+fila+'"]').val(respuesta.longitud);
             });
         }
     }

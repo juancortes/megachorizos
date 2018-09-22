@@ -39,7 +39,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'    => array('getLote'),
-				'expression' => 'Yii::app()->user->checkAccess("Traslados")',
+				'expression' => 'Yii::app()->user->checkAccess("Traslados") || Yii::app()->user->checkAccess("Recepcion")',
 			),
 			array('deny', // deny all users
 				'users' => array('*'),
@@ -80,8 +80,8 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			   		$datos[$d]['lote'] = $valor[1];
 			   		if($valor[1] == "")
 			   		{
-			   			$validar = false;
-			   			continue;
+			   			//$validar = false;
+			   			unset($datos[$d]);
 			   		}
 				}
 				else {
@@ -92,8 +92,7 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 				   		$datos[$d]['cantidad'] = $valor[1];
 				   		if($valor[1] == "")
 				   		{
-			   				$validar = false;
-			   				continue;
+			   				unset($datos[$d]);
 				   		}
 				   	} 
 				}
@@ -131,31 +130,33 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 			$errores = [];
 
 			foreach ($formulacion as $key => $value) {
-				
-				if(round($cantidad * $value->peso,2) != round($datos[$value->materia_prima]['cantidad'],2))
+				if(isset($datos[$value->materia_prima]))
 				{
-					$validar = false;
-					$insumo_falta = $value->materiaPrima->materia_prima;
-					$cant_ingresada = $value->peso;
-					if($value->materiaPrima->tipo == 0) //carnico
+					if(round($cantidad * $value->peso,2) != round($datos[$value->materia_prima]['cantidad'],2))
 					{
-						$mod = RecepcionMateriaPrimaCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
-						$peso = $mod->peso;
-					}
-					else if($value->materiaPrima->tipo == 1) //no carnico
-					{
-						$mod = RecepcionMateriaPrimaNoCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
-						$peso = $mod->peso_total;
-					}
-					else 
-					{
-						$mod = RecepcionVegetales::model()->findByPk($datos[$value->materia_prima]['lote']);
-						$peso = $mod->peso_total;
-					}
+						$validar = false;
+						$insumo_falta = $value->materiaPrima->materia_prima;
+						$cant_ingresada = $value->peso;
+						if($value->materiaPrima->tipo == 0) //carnico
+						{
+							$mod = RecepcionMateriaPrimaCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
+							$peso = $mod->peso;
+						}
+						else if($value->materiaPrima->tipo == 1) //no carnico
+						{
+							$mod = RecepcionMateriaPrimaNoCarnica::model()->findByPk($datos[$value->materia_prima]['lote']);
+							$peso = $mod->peso_total;
+						}
+						else 
+						{
+							$mod = RecepcionVegetales::model()->findByPk($datos[$value->materia_prima]['lote']);
+							$peso = $mod->peso_total;
+						}
 
-					
-					$lote = $mod->lote_interno;
-					$errores[$insumo_falta] = ['lote'=>$lote,'peso_lote'=>round($peso,2),'insumo'=>$insumo_falta,'cant_solicitada'=>($cantidad * $cant_ingresada),'cant_ingresada'=>round($datos[$value->materia_prima]['cantidad'],2)];
+						
+						$lote = $mod->lote_interno;
+						$errores[$insumo_falta] = ['lote'=>$lote,'peso_lote'=>round($peso,2),'insumo'=>$insumo_falta,'cant_solicitada'=>($cantidad * $cant_ingresada),'cant_ingresada'=>round($datos[$value->materia_prima]['cantidad'],2)];
+					}
 				}
 			}
 
@@ -271,55 +272,93 @@ class CtrlProduccionesTrazabilidadController extends Controller {
 					if (isset($dlleCtrlProducciones)) {
 						foreach ($dlleCtrlProducciones as $key => $value) {
 							$cantidad = $model->cant_produccion;
-							if($value->tipo == 0) //no carnica
-							{
-								$formulacion = Formulacion::model()->findByAttributes(array('producto_id' => $model->producto, 'materia_prima' => $value->insumo_id));
-								$insumo = Insumo::model()->findByPk($formulacion->materia_prima);
-								if (isset($insumo)) {
-									$insumo->cantidad += ($formulacion->peso*$model->cant_produccion);
-									if (!$insumo->save()) {
-										$transaction->rollback();
-										print_r($insumo->getErrors());
-										echo "insumo<br>";
-										echo "<br>";
-										exit;
-									}
+							
+							$formulacion = Formulacion::model()->findByAttributes(array('producto_id' => $model->producto, 'materia_prima' => $value->insumo_id));
+							$insumo = Insumo::model()->findByPk($formulacion->materia_prima);
+							if (isset($insumo)) {
+								$insumo->cantidad += ($formulacion->peso*$model->cant_produccion);
+								if (!$insumo->save()) {
+									$transaction->rollback();
+									print_r($insumo->getErrors());
+									echo "insumo<br>";
+									echo "<br>";
+									exit;
+								}
 
 
-									$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima,'proveedor_id'=>$value->proveedor_id), array('order' => 'cantidad DESC'));
-									if (isset($provInsumo)) {
-										$proveedor = $provInsumo->proveedor_id;
-										$provInsumo->cantidad += ($formulacion->peso*$model->cant_produccion);
-										
-										/*echo "cant=".$provInsumo->cantidad;
-										if (!$provInsumo->save()) {
-											var_dump($provInsumo->getErrors());
-											echo "provInsumo<br>";
-											echo "<br>";
-											$transaction->rollback();
-											exit;
-										}*/
-										$connection = Yii::app()->db;
-										$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $formulacion->materia_prima AND proveedor_id = $value->proveedor_id";
-										$command    = $connection->createCommand($sql);
-										$command->execute();
-									}
+								$provInsumo = ProveedorInsumo::model()->findByAttributes(array('insumo_id' => $formulacion->materia_prima,'proveedor_id'=>$value->proveedor_id), array('order' => 'cantidad DESC'));
+								if (isset($provInsumo)) {
+									$proveedor = $provInsumo->proveedor_id;
+									$provInsumo->cantidad += ($formulacion->peso*$model->cant_produccion);
 									
-									$rmpnc = RecepcionMateriaPrimaNoCarnica::model()->findAllByAttributes(array('lote_interno' => $value->lote_interno), array('order' => 'fec_ingreso DESC'));
-									foreach ($rmpnc as $k => $val) {
-										$rmpnc1                   = RecepcionMateriaPrimaNoCarnica::model()->findByPk($val->id);
-										$rmpnc1->peso_total       = $val->peso_total+$cantidad;
-										$rmpnc1->devolucion_si_no = 0;
-										$rmpnc1->unidad           = 0;
-										if (!$rmpnc1->save()) {
+									/*echo "cant=".$provInsumo->cantidad;
+									if (!$provInsumo->save()) {
+										var_dump($provInsumo->getErrors());
+										echo "provInsumo<br>";
+										echo "<br>";
+										$transaction->rollback();
+										exit;
+									}*/
+									$connection = Yii::app()->db;
+									$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $formulacion->materia_prima AND proveedor_id = $value->proveedor_id";
+									$command    = $connection->createCommand($sql);
+									$command->execute();
+								}
+
+								
+								if($value->tipo == 0) // carnica
+								{
+									$rmpc = RecepcionMateriaPrimaCarnica::model()->findByPk($value->lote_interno);
+									
+									if(isset($rmpc)) //carnica
+									{
+										$rmpc->peso             = $rmpc->peso+$cantidad;
+										$rmpc->devolucion_si_no = 0;
+										$rmpc->unidad           = 0;
+										if (!$rmpc->save()) {
+											$transaction->rollback();
+											print_r($rmpc->getErrors());
+											echo "<br>rmpc 22<br>";
+											echo "<br>";
+											exit;
+										}
+										$cantidad = 0;				
+									}								
+									
+								}
+								else if($value->tipo == 1) // no carnica
+								{
+									$rmpnc = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value->lote_interno);
+									if(isset($rmpnc)) //no carnica
+									{
+										$rmpnc->peso_total       = $rmpnc->peso_total+$cantidad;
+										$rmpnc->devolucion_si_no = 0;
+										$rmpnc->unidad           = 0;
+										if (!$rmpnc->save()) {
 											$transaction->rollback();
 											print_r($rmpnc->getErrors());
 											echo "<br>rmpnc 22<br>";
 											echo "<br>";
 											exit;
 										}
-										$cantidad = 0;									
+										$cantidad = 0;		
 									}
+									
+								}
+								else //vegetales
+								{
+									$rveg = RecepcionVegetales::model()->findByPk($value->lote_interno);
+									$rveg->peso_total       = $rveg->peso_total+$cantidad;
+									$rveg->devolucion_si_no = 0;
+									$rveg->unidad           = 0;
+									if (!$rveg->save()) {
+										$transaction->rollback();
+										print_r($rveg->getErrors());
+										echo "<br>rveg 22<br>";
+										echo "<br>";
+										exit;
+									}
+									$cantidad = 0;	
 								}
 							}
 						}
@@ -830,7 +869,7 @@ print_r(Yii::app()->user->insumos);
 
 									$dlleCtrlProducciones                       = new DetalleCtrlProducciones;
 									$dlleCtrlProducciones->ctrl_producciones_id = $model->id;
-									$dlleCtrlProducciones->tipo                 = 0;
+									$dlleCtrlProducciones->tipo                 = $key;  //0 carnico 1 no carnico y 2 vegetales
 									$dlleCtrlProducciones->insumo_id            = $insumo;
 									$dlleCtrlProducciones->cantidad             = $valorCantidad;
 									$dlleCtrlProducciones->proveedor_id         = $proveedor;

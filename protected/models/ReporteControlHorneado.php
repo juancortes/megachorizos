@@ -23,6 +23,8 @@
  * @property string $caract_fisicas_tamano
  * @property string $caract_fisicas_forma
  * @property integer $responsable_id
+ * @property string $fecha_sistema
+ * @property string $observaciones
  *
  * The followings are the available model relations:
  * @property Producto $producto0
@@ -45,15 +47,15 @@ class ReporteControlHorneado extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('fecha, tanda, responsable_id', 'required'),
+			array('fecha, responsable_id, fecha_sistema', 'required'),
 			array('tanda, averias, responsable_id', 'numerical', 'integerOnly'=>true),
-			array('producto', 'length', 'max'=>10),
-			array('cantidad, temperatura_salida, temperatura_coccion, sostenimiento_tiempo, sostenimiento_temperatura_interna', 'length', 'max'=>11),
+			array('producto, cantidad, temperatura_salida, temperatura_coccion, sostenimiento_tiempo, sostenimiento_temperatura_interna', 'length', 'max'=>11),
 			array('codigo_reproceso', 'length', 'max'=>50),
 			array('numero_programa, caract_organoleptica_color, caract_organoleptica_olor, caract_organoleptica_sabor, caract_organoleptica_textura, caract_fisicas_tamano, caract_fisicas_forma', 'length', 'max'=>2),
+			array('observaciones', 'length', 'max'=>150),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, fecha, tanda, producto, cantidad, averias, codigo_reproceso, numero_programa, temperatura_salida, temperatura_coccion, sostenimiento_tiempo, sostenimiento_temperatura_interna, caract_organoleptica_color, caract_organoleptica_olor, caract_organoleptica_sabor, caract_organoleptica_textura, caract_fisicas_tamano, caract_fisicas_forma, responsable_id', 'safe', 'on'=>'search'),
+			array('id, fecha, tanda, producto, cantidad, averias, codigo_reproceso, numero_programa, temperatura_salida, temperatura_coccion, sostenimiento_tiempo, sostenimiento_temperatura_interna, caract_organoleptica_color, caract_organoleptica_olor, caract_organoleptica_sabor, caract_organoleptica_textura, caract_fisicas_tamano, caract_fisicas_forma, responsable_id, fecha_sistema, observaciones', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -75,25 +77,27 @@ class ReporteControlHorneado extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id'                                => 'ID',
-			'fecha'                             => 'FECHA',
-			'tanda'                             => 'TANDA',
-			'producto'                          => 'Producto',
-			'cantidad'                          => 'CANTIDAD (Unidades)',
-			'averias'                           => 'AVERIAS (Unidades)',
-			'codigo_reproceso'                  => 'CÓDIGO REPROCESO',
-			'numero_programa'                   => 'NÚMERO PROGRAMA',
-			'temperatura_salida'                => 'TEMPERATURA SALIDA (°C)',
-			'temperatura_coccion'               => 'TEMPERATURA COCCIÓN (°C)',
-			'sostenimiento_tiempo'              => 'TIEMPO (Horas)',
-			'sostenimiento_temperatura_interna' => 'TEMPERATURA INTERNA (°C)',
-			'caract_organoleptica_color'        => 'COLOR',
-			'caract_organoleptica_olor'         => 'OLOR',
-			'caract_organoleptica_sabor'        => 'SABOR',
-			'caract_organoleptica_textura'      => 'TEXTURA',
-			'caract_fisicas_tamano'             => 'TAMAÑO',
-			'caract_fisicas_forma'              => 'FORMA',
-			'responsable_id'                    => 'RESPONSABLE',
+			'id' => 'ID',
+			'fecha' => 'Fecha',
+			'tanda' => 'Tanda',
+			'producto' => 'Producto',
+			'cantidad' => 'Cantidad',
+			'averias' => 'Averias',
+			'codigo_reproceso' => 'Codigo Reproceso',
+			'numero_programa' => 'Numero Programa',
+			'temperatura_salida' => 'Temperatura Salida',
+			'temperatura_coccion' => 'Temperatura Coccion',
+			'sostenimiento_tiempo' => 'Sostenimiento Tiempo',
+			'sostenimiento_temperatura_interna' => 'Sostenimiento Temperatura Interna',
+			'caract_organoleptica_color' => 'Caract Organoleptica Color',
+			'caract_organoleptica_olor' => 'Caract Organoleptica Olor',
+			'caract_organoleptica_sabor' => 'Caract Organoleptica Sabor',
+			'caract_organoleptica_textura' => 'Caract Organoleptica Textura',
+			'caract_fisicas_tamano' => 'Caract Fisicas Tamano',
+			'caract_fisicas_forma' => 'Caract Fisicas Forma',
+			'responsable_id' => 'Responsable',
+			'fecha_sistema' => 'Fecha Sistema',
+			'observaciones' => 'Observaciones',
 		);
 	}
 
@@ -134,6 +138,8 @@ class ReporteControlHorneado extends CActiveRecord
 		$criteria->compare('caract_fisicas_tamano',$this->caract_fisicas_tamano,true);
 		$criteria->compare('caract_fisicas_forma',$this->caract_fisicas_forma,true);
 		$criteria->compare('responsable_id',$this->responsable_id);
+		$criteria->compare('fecha_sistema',$this->fecha_sistema,true);
+		$criteria->compare('observaciones',$this->observaciones,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

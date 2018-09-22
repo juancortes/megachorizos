@@ -16,7 +16,7 @@
   clear: left;
   display: block;
 }
-</style>
+</style> 
 <script type="text/javascript" src="<?php echo Yii::app()->baseUrl; ?>/static/js/jtodo.js"></script>
 <?php
 /* @var $this DespachosController */
@@ -169,8 +169,7 @@
                     return {
                         q: term, 
                         page_limit: 10,
-                        producto: getIdProducto($(this)),
-                        fecha: $("#fecha").val()
+                        producto: getIdProducto($(this))
                     };
                 },
                 results: function (data, page) {            

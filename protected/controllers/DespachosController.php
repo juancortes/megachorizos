@@ -313,16 +313,14 @@ class DespachosController extends Controller
 	{
 		
 		$producto = $_POST['producto'];
-		$fecha    = $_POST['fecha'];
 		$criteria = new CDbCriteria(array('order'=>'id ASC'));
 		$sql   = "SELECT cpt.*, concat(cpt.id,'-',cpt.fecha) AS id1
 				  FROM ctrl_producciones_trazabilidad cpt
 				  INNER JOIN proceso_embutido pe ON pe.tanda = cpt.id				  
 				  WHERE 
-				   cpt.fecha =:fecha
-				  AND cpt.producto =:producto 
+				   cpt.producto =:producto 
 				  ORDER BY cpt.id ASC";
-		$datos = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':producto'=>$producto,':fecha'=>$fecha));
+		$datos = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':producto'=>$producto));
 		
 		if(isset($datos))
 		{
@@ -330,7 +328,7 @@ class DespachosController extends Controller
 			foreach ($datos as $key => $value) {
 				$n = $key +1;
 				$arreglo[$key]['id']    = $value['id1'];
-				$arreglo[$key]['nombre'] = $value['id1']." ".(int)$n." ".$value['producto0']->nombre;
+				$arreglo[$key]['nombre'] = $value['id1']." ".$value['orden_produccion']." ".$value['producto0']->nombre;
 			}
 			// echo json_encode($arreglo);
 			echo CJSON::encode(array(

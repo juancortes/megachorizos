@@ -28,11 +28,11 @@ class ReporteControlHorneadoController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'create', 'index', 'view', 'delete', 'update'),
+                'actions' => array('admin', 'create', 'index', 'view', 'delete', 'update','GetTanda'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1") || Yii::app()->user->checkAccess("admin")',
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'create', 'index', 'view'),
+                'actions' => array('admin', 'create', 'index', 'view','GetTanda'),
                 'expression' => 'Yii::app()->user->checkAccess("Horneador")',
             ),
 			array('deny',  // deny all users
@@ -172,5 +172,37 @@ class ReporteControlHorneadoController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+	}
+	
+	public function actionGetTanda()
+	{
+		$fecha    = $_POST['fecha'];
+		$criteria = new CDbCriteria(array('order'=>'id ASC'));
+		$sql   = "SELECT cpt.*
+				  FROM ctrl_producciones_trazabilidad cpt
+				  INNER JOIN producto p ON p.id = cpt.producto
+				  WHERE cpt.id NOT IN (
+				  	SELECT tanda
+				    FROM reporte_control_horneado 
+				  ) 
+				  AND cpt.fecha =:fecha 
+				  AND p.nombre not like '%CRUDO%'
+				  ORDER BY cpt.id ASC";
+
+		$datos    = CtrlProduccionesTrazabilidad::model()->findAllBySql($sql,array(':fecha'=>$fecha));
+		
+		if(isset($datos))
+		{
+			$arreglo = [];
+			foreach ($datos as $key => $value) {
+				$n = $key +1;
+				$arreglo[$key]['id']    = $value['id'];
+				$arreglo[$key]['datos'] = $value['fecha']." ".$value['orden_produccion']." ".$value['producto0']->nombre;
+			}
+			echo json_encode($arreglo);
+			// $model = new ProcesoEmbutido;
+			// $this->renderPartial('_getTanda', array('ordenProduccion'=>$datos,'model'=>$model));
+		}
+		
 	}
 }

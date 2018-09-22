@@ -89,7 +89,7 @@ $('.search-form form').submit(function(){
 		*/
 				array(
 					'class'=>'bootstrap.widgets.BsButtonColumn',
-					'template'=>'{view}{anular}',
+					'template'=>'{update}{view}{anular}',
 					'buttons' => array(
 							'anular'=>array(
 											 'url'=>'Yii::app()->controller->createUrl("actuaciones/cerrar", array("id"=>$data->id))',

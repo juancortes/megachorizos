@@ -367,6 +367,8 @@
         alertify.confirm('¿Estas seguro de enviar este formulario?', function(e){ 
             if(e)
             {
+                <?php if($model->isNewRecord) {?>
+
                 var datastring = $("#ctrl-producciones-trazabilidad-form").serialize();
                 $.post('validarFormulacion',
                 {
@@ -377,10 +379,19 @@
                 {
                     obj = JSON.parse(res);
                     if(obj.success == false)
-                        alertify.alert(obj.tabla);
+                        alertify.alert(obj.mensaje);
                     else
                         form.submit()
                 });
+            <?php }
+
+                else
+                {
+                    ?>
+                        form.submit()
+                    <?php
+                }
+             ?>
             }
             else
             {

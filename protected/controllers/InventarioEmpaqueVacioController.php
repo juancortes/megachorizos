@@ -28,12 +28,16 @@ class InventarioEmpaqueVacioController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('validarCantidad','admin', 'create', 'index', 'view', 'delete', 'update','getProducto','getLote'),
+                'actions' => array('getBolsa','getLoteBolsa','validarCantidad','admin', 'create', 'index', 'view', 'delete', 'update','getProducto','getLote'),
                 'expression' => 'Yii::app()->user->checkAccess("Admin1")',
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('validarCantidad','admin', 'create', 'index', 'view','getProducto','getLote'),
+                'actions' => array('getBolsa','getLoteBolsa','validarCantidad','admin', 'create', 'index', 'view','getProducto','getLote'),
                 'expression' => 'Yii::app()->user->checkAccess("lider_area")',
+            ),
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions' => array('getBolsa','getLoteBolsa','getProducto','getLote'),
+                'expression' => 'Yii::app()->user->checkAccess("Embutidor1")',
             ),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -119,6 +123,26 @@ class InventarioEmpaqueVacioController extends Controller
 	public function actionGetLote()
 	{
 		$lote = Producto::model()->findAllBySql('SELECT concat(c.id,"-",fecha) AS id, concat(c.id,"-",fecha) AS nombre, p.cantidad  FROM  ctrl_producciones_trazabilidad c inner join producto p on p.id = c.producto WHERE  producto LIKE :producto AND cant_produccion > 0  ORDER BY producto ',array(':producto'=>'%'.$_POST['producto'].'%'));
+		echo CJSON::encode(array(
+			'deptos'=>$lote,
+			) 
+		);
+	}
+
+
+	public function actionGetBolsa()
+	{
+
+		$lote = Insumo::model()->findAllBySql('SELECT  id, materia_prima  FROM  insumo WHERE UPPER(materia_prima) like "%BOLSA%"');
+		echo CJSON::encode(array(
+			'deptos'=>$lote,
+			) 
+		);
+	}
+
+	public function actionGetLoteBolsa()
+	{
+		$lote = RecepcionMateriaPrimaNoCarnica::model()->findAllBySql('SELECT rv.id, concat(lote_interno," - ",fec_ingreso," - ", round(peso_total,2))  AS lote_interno	  FROM  recepcion_materia_prima_no_carnica rv inner join insumo i on i.id = rv.materia_prima_insumo WHERE  i.id LIKE :insumo AND cantidad > 0  ORDER BY rv.id ',array(':insumo'=>'%'.$_POST['bolsa'].'%'));
 		echo CJSON::encode(array(
 			'deptos'=>$lote,
 			) 
