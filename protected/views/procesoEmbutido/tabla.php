@@ -38,10 +38,10 @@
                                 echo "<option value='267' selected >Colageno</option>";
                             else 
                                 echo "<option value='267'>Colageno</option>";
-                            if($value->tipo == 270)
-                                echo "<option value='270' selected>tripa</option>";
+                            if($value->tipo == 296)
+                                echo "<option value='296' selected>tripa</option>";
                             else    
-                                echo "<option value='270'>tripa</option>";
+                                echo "<option value='296'>tripa</option>";
             echo        "</select>
                     </td>";
             echo "  <td><input type='text' data-valores='10'  class='peso'       name='productos[$key][peso]'       id='peso_$key'       style='width:60px' value='$value->peso' ></td>";

@@ -35,9 +35,9 @@ class DetalleInventarioEmpaqueVacio extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('producto_id, unidad, lote, reproceso, inventario_empaque_vacio_id', 'required'),
-			array('unidad', 'numerical', 'integerOnly'=>true),
 			array('producto_id, inventario_empaque_vacio_id', 'length', 'max'=>11),
 			array('lote', 'length', 'max'=>100),
+			array('unidad', 'length', 'max'=>11),
 			array('reproceso', 'length', 'max'=>255),
 			array('observaciones', 'length', 'max'=>150),
 			// The following rule is used by search().

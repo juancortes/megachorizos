@@ -240,7 +240,7 @@ return array(
 					),
 		),
 	//tripa
-	'270' => array(
+	'296' => array(
 			'11' => array(
 						'peso'     => '150',
 						'longitud' => '24',

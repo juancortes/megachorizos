@@ -25,7 +25,7 @@
 
     <?php echo $form->errorSummary($model); ?>
 
-    <?php echo $form->dropDownListControlGroup($model,'insumo_id',array('267'=>'Colageno','270'=>'Tripa'),  
+    <?php echo $form->dropDownListControlGroup($model,'insumo_id',array('267'=>'Colageno','296'=>'Tripa'),  
                         array('id'=>'insumo',                         
                             'prompt' => 'Seleccione un insumo...',
                             'class'=>'select2' )); ?>

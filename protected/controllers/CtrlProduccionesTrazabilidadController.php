@@ -863,9 +863,13 @@ print_r(Yii::app()->user->insumos);
 										exit;
 									}*/
 									$connection = Yii::app()->db;
-									$sql        = "UPDATE proveedor_insumo SET cantidad = $provInsumo->cantidad WHERE insumo_id = $insumo AND proveedor_id = $proveedor";
+									$sql        = "UPDATE proveedor_insumo SET cantidad = cantidad - $provInsumo->cantidad WHERE insumo_id = $insumo AND proveedor_id = $proveedor";
 									$command    = $connection->createCommand($sql);
 									$command->execute();
+
+									$ins = Insumo::model()->findByPk($insumo);
+									$ins->cantidad -= $value['cantidad_tipo'];
+									$ins->save();
 
 									$dlleCtrlProducciones                       = new DetalleCtrlProducciones;
 									$dlleCtrlProducciones->ctrl_producciones_id = $model->id;

@@ -160,38 +160,30 @@ class RecepcionMateriaPrimaNoCarnicaController extends Controller
 					{
 						$insumo = Insumo::model()->findByPk($insumoAnterior);
 						$insumo->cantidad -= $pesoAnterior;
-						if($insumo->cantidad < 0)
+						
+						$insumo->save();
+						
+						$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$proveedorAnterior->id,'insumo_id'=>$insumoAnterior));
+						if(isset($ProveedorInsumo))
 						{
-							$transaction->rollback();
-							throw new Exception("insumo negativo", 1);
-						}
-						else
-						{
-							$insumo->save();
-
-							$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$proveedorAnterior,'insumo_id'=>$insumoAnterior));
 							$proveedorInsumo->cantidad -= $pesoAnterior;
 							$proveedorInsumo->save(); 
-
-
-							//adicionar el nuevo insumo 
-							$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
-							$insumo->cantidad += $pesoAnterior;
-							$insumo->save();
-
-							$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$model->proveedor,'insumo_id'=>$model->materia_prima_insumo));
-							$proveedorInsumo->cantidad += $pesoAnterior;
-							$proveedorInsumo->save();
 						}
+
+						//adicionar el nuevo insumo 
+						$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
+						$insumo->cantidad += $pesoAnterior;
+						$insumo->save();
+
+						$proveedorInsumo = ProveedorInsumo::model()->findByAttributes(array('proveedor_id'=>$model->proveedor->id,'insumo_id'=>$model->materia_prima_insumo));
+						$proveedorInsumo->cantidad += $pesoAnterior;
+						$proveedorInsumo->save();
 					}
 
-					if($pesoAnterior != $model->peso_total)
-					{
-						$dif = $pesoAnterior - $model->peso_total;
-						$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
-						$insumo->cantidad += $dif;
-						$insumo->save();
-    				}
+					$dif = $pesoAnterior - $model->peso_total;
+					$insumo = Insumo::model()->findByPk($model->materia_prima_insumo);
+					$insumo->cantidad += $dif;
+					$insumo->save();
     				
     				$transaction->commit();
 					$this->redirect(array('view','id'=>$model->id));

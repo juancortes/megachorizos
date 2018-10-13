@@ -74,23 +74,34 @@ class InventarioEmpaqueVacioController extends Controller
 			{
 		
 				$detalles = $_POST['InventarioEmpaqueVacio']['detalle'];
+					
 				foreach ($detalles as $key => $value) {
 					$m            = new DetalleInventarioEmpaqueVacio;
-					$m->producto  = $value['producto'];
+					$m->producto_id  = $value['producto'];
 					$m->cantidad  = $value['cantidad'];
 					$m->unidad    = $value['unidad'];
 					$m->lote      = $value['lote'];
-					$m->reproceso = $value['reproceso'];
+					$m->reproceso = ($value['reproceso'] == '') ? 0 : $value['reproceso'];
 					$m->inventario_empaque_vacio_id = $model->id;
-					$m->save();
 
-					$orden1 = explode('-', $value['lote']);
-					$orden  = $orden1[0];
-					$fecha  = $orden1[1]."-".$orden1[2]."-".$orden1[3];
-					
-					$producto = Producto::model()->findByPk($value['producto']);
-					$producto->cantidad -= $value['cantidad'];					
-					$producto->save();
+					if($m->save())
+					{
+
+						$orden1 = explode('-', $value['lote']);
+						$orden  = $orden1[0];
+						$fecha  = $orden1[1]."-".$orden1[2]."-".$orden1[3];
+						
+						$producto = Producto::model()->findByPk($value['producto']);
+						$producto->cantidad -= $value['cantidad'];					
+						$producto->save();
+					}
+					else
+					{
+						echo "error detalle inventario empaque<pre>";
+						print_r($m->getErrors());
+						exit;
+
+					}
 				}
 				$this->redirect(array('view','id'=>$model->id));
 			}

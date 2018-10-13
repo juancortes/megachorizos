@@ -170,7 +170,7 @@
                             <td><div align="center"><select id="insumo_{{solicitud.fila}}" name="SeccionarOrderProdccion[detalle1][{{solicitud.fila}}][insumo]" class="insumo" fila={{solicitud.fila}} ng-change="cargarDatos(solicitud.fila)"  ng-model=solicitud.insumo>
                                     <option value="" selected="true">Seleccione un insumo</option>
                                     <option value="267">Colageno</option>
-                                    <option value="270">Tripa</option>
+                                    <option value="296">Tripa</option>
                                 </select>
                                 </div></td>
                             <td><div align="center"><input type="text" id="peso_unidad_{{solicitud.fila}}" name="SeccionarOrderProdccion[detalle1][{{solicitud.fila}}][peso_unidad]" class="peso_unidad" fila={{solicitud.fila}}  ng-model=solicitud.peso_unidad></div></td>

@@ -215,7 +215,7 @@
                                         <td><div align="center">
                                                 <select id="tipo_{{solicitud.fila}}" name="ProcesoEmbutido[producto][{{solicitud.fila}}][tipo]" class="tipo form-control select2-select" style="width:90%" fila={{solicitud.fila}}  ng-model=solicitud.tipo ng-change="setTipo(solicitud.fila)">
                                                     <option value="267">Colageno</option>
-                                                    <option value="270">Tripa</option>
+                                                    <option value="296">Tripa</option>
                                                 </select>
                                             </div>
                                         </td>
@@ -268,7 +268,7 @@
                             echo "<tr>";
                             echo "  <td>".$value->producto->nombre."<input type='hidden'  name='ProcesoEmbutido[producto_id][$key]' value='$value->producto_id'></td>";
                             echo "  <td>".$value->cantidad."</td>";
-                            if($value->tipo == 270)
+                            if($value->tipo == 296)
                                 $tipo = 'Tripa';
                             else
                                 $tipo = 'Colageno';

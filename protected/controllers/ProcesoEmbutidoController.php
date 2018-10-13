@@ -106,6 +106,7 @@ class ProcesoEmbutidoController extends Controller
 					foreach ($productos as $key => $value) {
 						if($value['producto'] != "")
 						{
+							
 							$modelEmbutidoProductos                      = new EmbutidoProductos;
 							$modelEmbutidoProductos->fecha               = date('Y-m-d H:i:s');
 							$modelEmbutidoProductos->proceso_embutido_id = $model->id;
@@ -126,6 +127,30 @@ class ProcesoEmbutidoController extends Controller
 								$transaction->rollback();
             					Yii::log("Error control de producciones trazabilidad : ".print_r($modelEmbutidoProductos->getErrors(),true), 'error', 'application.controllers.TercerosmetasController');
 							}
+
+							$rmpnc  = RecepcionMateriaPrimaNoCarnica::model()->findByPk($value['lote_tipo']);
+							if(isset($rmpnc))
+							{
+								$insumo = $rmpnc->materia_prima_insumo;
+								$proveedor = $rmpnc->proveedor_id;
+								$rmpnc->peso_total -= $value['cantidad_tipo'];
+								$rmpnc->devolucion_si_no = 0;
+								$rmpnc->save();
+
+
+								$connection = Yii::app()->db;
+								$sql        = "UPDATE proveedor_insumo SET cantidad = cantidad - $value[cantidad_tipo] 
+												WHERE insumo_id = $insumo 
+													AND proveedor_id = $proveedor";
+								$command    = $connection->createCommand($sql);
+								$command->execute();
+
+								$ins = Insumo::model()->findByPk($insumo);
+								$ins->cantidad -= $value['cantidad_tipo'];
+								$ins->save();
+
+							}
+
 						}
 					}
 					

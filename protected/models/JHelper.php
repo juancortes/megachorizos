@@ -11,7 +11,9 @@ class JHelper
 	public static function getUnidad(){ 
 		return array(0 => 'Kg',
 					 1 => 'Gr',
-					 2 => 'Unidad');
+					 2 => 'Unidad',
+					 3 => 'Metros'
+					);
 	}
 
 	public static function getPrioridad(){
